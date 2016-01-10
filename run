@@ -1,3 +1,11 @@
+#!/bin/bash
+
+PP=$(dirname $0)
+echo running from $PP
+[ -f $PP/conf.ini ] || $PP/config
+[ -f $PP/conf.ini ] || exit -1
+. $PP/conf.ini	
+
 if [ -z "$1" ] || [ -z "$2" ]
 then
 	echo Usage: ./run.sh MODEL CASE.xml [gpus]
@@ -38,7 +46,7 @@ fi
 NAME=CLB:$CASE
 NCPU=$GPUS
 
-SOLVER=CLB/$MODEL/main
+SOLVER=$TCLB/CLB/$MODEL/main
 
 if [ ! -f "$SOLVER" ]
 then
@@ -54,7 +62,7 @@ sbatch <<EOF
 #SBATCH -n $NCPU
 #SBATCH --ntasks-per-node=$PPN
 #SBATCH --time=01:00:00 
-#SBATCH -A clb2016
+#SBATCH -A $GRANT
 #SBATCH -p plgrid-gpu
 #SBATCH --gres=gpu:$PPN
  
