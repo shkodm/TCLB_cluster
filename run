@@ -1,0 +1,72 @@
+if [ -z "$1" ] || [ -z "$2" ]
+then
+	echo Usage: ./run.sh MODEL CASE.xml [gpus]
+	exit -1
+fi
+
+CASE=$2
+MODEL=$1
+GPUS=$3
+if [ -z "$GPUS" ]
+then
+	GPUS=1
+fi
+
+echo Trying to run $CASE with $MODEL model on $GPUS gpus...
+
+if [ $GPUS -gt 1 ]
+then
+	PPN=2
+	NODES=$[$GPUS/2]
+else
+	PPN=1
+	NODES=1
+fi
+
+if [ $GPUS -ne $[$NODES*$PPN] ]
+then
+	echo Requested number of GPUS \($GPUS\) is not $NODES x $PPN
+	exit -1
+fi
+
+if [ ! -f "$CASE" ]
+then
+	echo No case file: $CASE
+	exit -1
+fi
+
+NAME=CLB:$CASE
+NCPU=$GPUS
+
+SOLVER=CLB/$MODEL/main
+
+if [ ! -f "$SOLVER" ]
+then
+	echo No such model: $MODEL
+	echo File not found: $SOLVER
+	exit -1
+fi
+
+sbatch <<EOF
+#!/bin/bash -l
+#SBATCH -J $NAME
+#SBATCH -N $NODES
+#SBATCH -n $NCPU
+#SBATCH --ntasks-per-node=$PPN
+#SBATCH --time=01:00:00 
+#SBATCH -A clb2016
+#SBATCH -p plgrid-gpu
+#SBATCH --gres=gpu:$PPN
+ 
+     cd \$SLURM_SUBMIT_DIR 
+echo "###### Nodes:          #######"
+     srun --ntasks-per-node=1 /bin/hostname
+echo "###### nVidia-SMI:     #######"
+     nvidia-smi
+echo "###### Loading modules #######"
+     module load tools/openmpi
+     module load apps/cuda
+echo "###### --------------- #######"
+echo ""
+     mpirun $SOLVER $CASE
+EOF
