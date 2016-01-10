@@ -1,0 +1,49 @@
+#!/bin/bash
+
+if [ -f conf.ini ]
+then
+	. conf.ini
+fi
+
+function checkgrant {
+	[ -z "$1" ] && return 1
+	NL=$(sacctmgr --quiet list Account "$1" | wc -l)
+	[ $NL -ne 3 ] && return 1
+	return 0
+}
+
+[ ! -z "$GRANT" ] && GRANT_o=" [$GRANT]"
+echo -n "What is your grant name$GRANT_o: "
+read GRANT_n
+[ ! -z "$GRANT_n" ] && GRANT=$GRANT_n
+
+if [ -z "$GRANT" ]
+then
+	echo No grant provided. Exiting.
+	exit -1
+fi
+
+if ! checkgrant $GRANT
+then
+	echo No such grant: $GRANT
+	exit -1
+fi
+
+[ -z "$TCLB" ] && TCLB=$(pwd)
+echo -n "What is the path to TCLB [$TCLB]: "
+read TCLB_n
+[ ! -z "$TCLB_n" ] && TCLB=$TCLB_n
+
+if [ ! -d "$TCLB/CLB" ]
+then
+	echo there is no CLB subdirectory - something is wrong
+	echo file not found: $TCLB/CLB
+	exit -1;
+else
+	TCLB=$(cd $TCLB; pwd)
+fi
+
+cat >conf.ini <<EOF
+GRANT=$GRANT
+TCLB=$TCLB
+EOF
