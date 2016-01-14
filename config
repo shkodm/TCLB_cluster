@@ -1,8 +1,10 @@
 #!/bin/bash
 
-if [ -f conf.ini ]
+PP=$(dirname $0)
+
+if [ -f $PP/conf.ini ]
 then
-	. conf.ini
+	. $PP/conf.ini
 fi
 
 function checkgrant {
@@ -43,7 +45,7 @@ else
 	TCLB=$(cd $TCLB; pwd)
 fi
 
-cat >conf.ini <<EOF
+cat >$PP/conf.ini <<EOF
 GRANT=$GRANT
 TCLB=$TCLB
 EOF
