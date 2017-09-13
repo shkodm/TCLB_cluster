@@ -65,7 +65,7 @@ then
 fi
 
 [ -z "$CONFOPT" ] && CONFOPT="--disable-cuda"
-echo -n "Provide ./configure options you want to use [$CONFOPT]: "
+echo -n "Provide ./configure options you want to use (please use single ' for quotes) [$CONFOPT]: "
 read CONFOPT_n
 [ ! -z "$CONFOPT_n" ] && CONFOPT="$CONFOPT_n"
 
@@ -82,11 +82,11 @@ then
 fi
 
 cat >$PP/conf.ini <<EOF
-GRANT=$GRANT
-TCLB=$TCLB
-PROGENV=$PROGENV
-CONFOPT=$CONFOPT
-RHOME=$RHOME
+GRANT="$GRANT"
+TCLB="$TCLB"
+PROGENV="$PROGENV"
+CONFOPT="$CONFOPT"
+RHOME="$RHOME"
 EOF
 
 cat >$PP/mods.ini <<EOF
