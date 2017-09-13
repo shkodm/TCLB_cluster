@@ -1,11 +1,17 @@
 #!/bin/bash
 
+#set -e
+
 PP=$(dirname $0)
 
 if [ -f $PP/conf.ini ]
 then
 	. $PP/conf.ini
 fi
+
+function defgrant {
+	sacctmgr -p --quiet list User $USER | cut -d '|' -f 2 | tail -n1
+}
 
 function checkgrant {
 	[ -z "$1" ] && return 1
@@ -14,6 +20,7 @@ function checkgrant {
 	return 0
 }
 
+[ -z "$GRANT" ] && GRANT=$(defgrant)
 [ ! -z "$GRANT" ] && GRANT_o=" [$GRANT]"
 echo -n "What is your grant name$GRANT_o: "
 read GRANT_n
@@ -36,16 +43,64 @@ echo -n "What is the path to TCLB [$TCLB]: "
 read TCLB_n
 [ ! -z "$TCLB_n" ] && TCLB=$TCLB_n
 
-if [ ! -d "$TCLB/CLB" ]
+if [ ! -d "$TCLB/src" ]
 then
-	echo there is no CLB subdirectory - something is wrong
-	echo file not found: $TCLB/CLB
+	echo there is no src subdirectory - something is wrong
+	echo file not found: $TCLB/src
 	exit -1;
 else
 	TCLB=$(cd $TCLB; pwd)
 fi
 
+PROGENV_l=$(module list 2>&1 | grep PrgEnv | sed 's/^.*) //') #Getting the PrgEnv module loaded now.
+[ -z "$PROGENV" ] && PROGENV="$PROGENV_l"
+echo -n "What PrgEnv you want to use [$PROGENV]: "
+read PROGENV_n
+[ ! -z "$PROGENV_n" ] && PROGENV="$PROGENV_n"
+
+if [ -z "$(module av $PROGENV 2>&1)" ]
+then
+	echo there is no module $PROGENV
+	exit -1;
+fi
+
+[ -z "$CONFOPT" ] && CONFOPT="--disable-cuda"
+echo -n "Provide ./configure options you want to use [$CONFOPT]: "
+read CONFOPT_n
+[ ! -z "$CONFOPT_n" ] && CONFOPT="$CONFOPT_n"
+
+[ -z "$RHOME" ] && RHOME=$(R RHOME 2>/dev/null)
+[ -z "$RHOME" ] && RHOME=$(echo /pawsey/cle*/apps/PrgEnv-gnu/*/gcc/*/haswell/r/*/bin/R | sed 's|bin/R||' | head -n1)
+echo -n "What is the path to R (without the bin/ part) [$RHOME]: "
+read RHOME_n
+[ ! -z "$RHOME_n" ] && RHOME="$RHOME_n"
+
+if [ ! -f "$RHOME/bin/R" ]
+then
+	echo R not found in $RHOME/bin/
+	exit -1;
+fi
+
 cat >$PP/conf.ini <<EOF
 GRANT=$GRANT
 TCLB=$TCLB
+PROGENV=$PROGENV
+CONFOPT=$CONFOPT
+RHOME=$RHOME
 EOF
+
+cat >$PP/mods.ini <<EOF
+module unload $PROGENV_l
+module load $PROGENV
+export PATH="$RHOME/bin:\$PATH"
+EOF
+
+echo -n "Do you want to install needed R packages now? [n]"
+read ans
+[ -z "$ans" ] && ans=n
+[ "$ans" == "y" ] && salloc -p debugq --ntasks=1 $PP/exec.install skipssl rdep
+
+echo -n "Do you want to run ./configure now? [y]"
+read ans
+[ -z "$ans" ] && ans=y
+[ "$ans" == "y" ] && salloc -p debugq --ntasks=1 $PP/exec.configure $CONFOPT CC=cc CXX=CC

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+PP=$(dirname $0)
+. $PP/mods.ini
+srun make configure
+srun ./configure $@
