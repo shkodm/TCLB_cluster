@@ -30,4 +30,15 @@ p/make d2q9
 ```
 
 ## Running cases
-A script `p/run` will be provided for running cases in near future
+To run cases you can use the `run` script:
+```bash
+p/run [model] [case.xml] [number of cores]
+```
+
+You can use the script from a different directory then TCLB main dir, so for instance:
+```
+cd /scratch/blarbla/blarbla/some_important_research/
+~/TCLB/p/run d2q9 mycase.xml 48
+```
+
+If I understand the accouting on Magnus it rarely makes sens to run on less then 24 cores, as they bill you for 24.

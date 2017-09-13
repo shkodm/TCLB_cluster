@@ -7,32 +7,32 @@ PP=$(dirname $0)
 
 if [ -z "$1" ] || [ -z "$2" ]
 then
-	echo Usage: ./run.sh MODEL CASE.xml [gpus]
+	echo Usage: ./run MODEL CASE.xml [cores]
 	exit -1
 fi
 
 CASE=$2
 MODEL=$1
-GPUS=$3
-if [ -z "$GPUS" ]
+CPUS=$3
+if [ -z "$CPUS" ]
 then
-	GPUS=1
+	CPUS=1
 fi
 
-echo Trying to run $CASE with $MODEL model on $GPUS gpus...
+echo Trying to run $CASE with $MODEL model on $CPUS cores...
 
-if [ $GPUS -gt 1 ]
+if [ $CPUS -gt 24 ]
 then
-	PPN=2
-	NODES=$[$GPUS/2]
+	PPN=24
+	NODES=$[$CPUS/24]
 else
-	PPN=1
+	PPN=$CPUS
 	NODES=1
 fi
 
-if [ $GPUS -ne $[$NODES*$PPN] ]
+if [ $CPUS -ne $[$NODES*$PPN] ]
 then
-	echo Requested number of GPUS \($GPUS\) is not $NODES x $PPN
+	echo Requested number of CPUS \($CPUS\) is not $NODES x $PPN
 	exit -1
 fi
 
@@ -43,7 +43,7 @@ then
 fi
 
 NAME=CLB:$CASE
-NCPU=$GPUS
+NCPU=$CPUS
 
 SOLVER=$TCLB/CLB/$MODEL/main
 
@@ -62,18 +62,14 @@ sbatch <<EOF
 #SBATCH --ntasks-per-node=$PPN
 #SBATCH --time=01:00:00 
 #SBATCH -A $GRANT
-#SBATCH -p plgrid-gpu
-#SBATCH --gres=gpu:$PPN
+#SBATCH -p workq
  
      cd \$SLURM_SUBMIT_DIR 
 echo "###### Nodes:          #######"
-     srun --ntasks-per-node=1 /bin/hostname
-echo "###### nVidia-SMI:     #######"
-     nvidia-smi
+     srun /bin/hostname
 echo "###### Loading modules #######"
-     module load tools/openmpi
-     module load apps/cuda
+	$PP/mods.ini
 echo "###### --------------- #######"
 echo ""
-     mpirun $SOLVER $CASE
+     srun $SOLVER $CASE
 EOF
