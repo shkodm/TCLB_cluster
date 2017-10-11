@@ -32,7 +32,7 @@ p/make d2q9
 ## Running cases
 To run cases you can use the `run` script:
 ```bash
-p/run [model] [case.xml] [number of cores]
+p/run [model] [case.xml] [number of cores] [options for sbatch (optional)]
 ```
 
 You can use the script from a different directory then TCLB main dir, so for instance:
@@ -42,3 +42,12 @@ cd /scratch/blarbla/blarbla/some_important_research/
 ```
 
 If I understand the accouting on Magnus it rarely makes sens to run on less then 24 cores, as they bill you for 24.
+
+### Changeing options
+You can change the default time (1h), name, etc by supplying additional options for sbatch like:
+```
+~/TCLB/p/run d2q9 mycase.xml 48 -J "new name" --time=24:00:00
+```
+
+## Notifications
+The scripts support getting PushBullet notifications based on: https://github.com/llaniewski/my.prompt
