@@ -11,9 +11,13 @@ then
 	exit -1
 fi
 
-CASE=$2
 MODEL=$1
-CPUS=$3
+shift
+CASE=$1
+shift
+CPUS=$1
+shift
+
 if [ -z "$CPUS" ]
 then
 	CPUS=1
@@ -54,7 +58,7 @@ then
 	exit -1
 fi
 
-sbatch <<EOF
+sbatch $@ <<EOF
 #!/bin/bash -l
 #SBATCH -J $NAME
 #SBATCH -N $NODES
@@ -68,8 +72,14 @@ sbatch <<EOF
 echo "###### Nodes:          #######"
      srun /bin/hostname
 echo "###### Loading modules #######"
-	$PP/mods.ini
+     . $PP/mods.ini
 echo "###### --------------- #######"
 echo ""
-     srun $SOLVER $CASE
+	trap "pb_msg $NAME Errored" ERR
+	trap "pb_msg $NAME Terminated" TERM
+	trap "pb_msg $NAME Killed" KILL
+	set -e
+	pb_msg "$NAME" "Started on \$HOSTNAME"
+	srun $SOLVER $CASE
+	pb_msg "$NAME" "Finished"
 EOF

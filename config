@@ -93,6 +93,14 @@ cat >$PP/mods.ini <<EOF
 module unload $PROGENV_l
 module load $PROGENV
 export PATH="$RHOME/bin:\$PATH"
+
+if ! declare -f pb_msg >/dev/null
+then
+	function pb_msg { return 0; }
+	function pb_file { return 0; }
+else
+	PB_CURL_OPT="--insecure"
+fi
 EOF
 
 echo -n "Do you want to install needed R packages now? [n]"
