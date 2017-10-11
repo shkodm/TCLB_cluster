@@ -58,7 +58,7 @@ then
 	exit -1
 fi
 
-sbatch $@ <<EOF
+sbatch "$@" <<EOF
 #!/bin/bash -l
 #SBATCH -J $NAME
 #SBATCH -N $NODES
@@ -75,11 +75,11 @@ echo "###### Loading modules #######"
      . $PP/mods.ini
 echo "###### --------------- #######"
 echo ""
-	trap "pb_msg $NAME Errored" ERR
-	trap "pb_msg $NAME Terminated" TERM
-	trap "pb_msg $NAME Killed" KILL
+	trap "say Errored" ERR
+	trap "say Terminated" TERM
+	trap "say Killed" KILL
 	set -e
-	pb_msg "$NAME" "Started on \$HOSTNAME"
+	say Started
 	srun $SOLVER $CASE
-	pb_msg "$NAME" "Finished"
+	say Finished
 EOF

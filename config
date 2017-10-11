@@ -101,6 +101,11 @@ then
 else
 	PB_CURL_OPT="--insecure"
 fi
+
+function say {
+	MSG="\$@"
+	pb_msg "\$SLURM_JOB_NAME" "\$MSG (after \$SECONDS s)"
+}
 EOF
 
 echo -n "Do you want to install needed R packages now? [n]"
