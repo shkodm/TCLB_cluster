@@ -1,0 +1,14 @@
+# .*\.pro\.cyfronet\.pl
+
+echo "You are on the Prometheus cluster"
+
+CONFOPT_DEF=""
+DEBUGQ_DEF="plgrid-testing"
+DEBUGQ_ASK="no"
+MAINQ_DEF="plgrid-gpu"
+MAINQ_ASK="no"
+LOAD_DEF="apps/r apps/cuda/9.0 tools/openmpi/2.0.1-gcc-4.9.2"
+UNLOAD_ASK="no"
+RHOME_DEF=""
+RHOME_ASK=""
+CONFOPT_DEF="--with-cuda-arch=sm_30"

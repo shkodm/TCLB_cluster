@@ -1,0 +1,5 @@
+# magnus-.*
+
+echo "Magnus!"
+
+[ -z "$RHOME" ] && RHOME=$(echo /pawsey/cle*/apps/PrgEnv-gnu/*/gcc/*/haswell/r/*/bin/R | sed 's|bin/R||' | head -n1)
