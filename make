@@ -5,4 +5,4 @@ PP=$(dirname $0)
 [ -f $PP/conf.ini ] || exit -1
 . $PP/conf.ini
 
-salloc -p debugq --ntasks=1 --cpus-per-task=24 $PP/exec.make -j24 $@
+salloc -A $GRANT -p $DEBUGQ --ntasks=1 --cpus-per-task=12 $PP/exec.make -j12 $@
