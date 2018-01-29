@@ -56,7 +56,7 @@ ask CONFOPT "Provide ./configure options you want to use (please use single ' fo
 
 ask RHOME "What is the path to R (without the bin/ part)"
 
-if ! test -z "$RHOME_ASK"
+if test -z "$RHOME_ASK"
 then
 	if [ ! -f "$RHOME/bin/R" ]
 	then
