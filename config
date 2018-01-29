@@ -28,6 +28,7 @@ RHOME_DEF=$(R RHOME 2>/dev/null)
 RHOME_ASK="fix"
 RUN_GPU_ASK="yn"
 RUN_GPU_DEF="y"
+MODULES_UNLOAD_DEF="purge"
 
 source_cluster
 
@@ -43,6 +44,7 @@ ask CORES_PER_UNIT "What number of cores you want to attach to every process/gpu
 ask CORES_PER_UNIT_FULL "What number of cores to attach on a full node"
 ask MODULES_RUN "What modules to load for running TCLB"
 ask MODULES_ADD "What additional modules to load for compilation"
+ask MODULES_UNLOAD "What modules to unload for running/compiling TCLB"
 ask RUN_COMMAND "What command to use to run MPI application (runmpi|srun|aprun)"
 
 save_conf
@@ -55,6 +57,16 @@ fi
 if ! test -z "$MODULES_ADD"
 then
 	MODULES_ADD_LOAD="\$mod_add && quiet_run module load $MODULES_ADD"
+fi
+
+if ! test -z "$MODULES_UNLOAD"
+then
+	if test "$MODULES_UNLOAD" == "purge"
+	then
+		MODULES_UNLOAD_LOAD="quiet_run module purge"
+	else
+		MODULES_UNLOAD_LOAD="quiet_run module unload $MODULES_UNLOAD"
+	fi
 fi
 
 if ! test -z "$RHOME"
@@ -73,8 +85,8 @@ function quiet_run {
 		echo "OK"
 	fi
 }
-quiet_run module purge
 test -z "\$mod_add" && exit -1
+$MODULES_UNLOAD_LOAD
 $MODULES_ADD_LOAD
 $MODULES_RUN_LOAD
 $RHOME_LOAD
