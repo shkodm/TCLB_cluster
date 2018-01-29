@@ -24,6 +24,8 @@ GRANT_DEF="$(defgrant)"
 TCLB_DEF="$(pwd)"
 CONFOPT_DEF="--disable-cuda"
 RHOME_DEF=$(R RHOME 2>/dev/null)
+RUN_GPU_ASK="yn"
+RUN_GPU_DEF="y"
 
 source_cluster
 
@@ -52,6 +54,10 @@ else
 	TCLB=$(cd $TCLB; pwd)
 fi
 
+ask RUN_GPU "Do you want to run on GPU"
+
+
+
 ask CONFOPT "Provide ./configure options you want to use (please use single ' for quotes)"
 
 ask RHOME "What is the path to R (without the bin/ part)"
@@ -67,6 +73,12 @@ fi
 
 ask DEBUGQ "What is the name of the debug queue/partition"
 ask MAINQ "What is the name of the main queue/partition to use"
+ask MAX_PPN "What is the maximal number of cores/gpus per node"
+if test -z "$FULL_PPN_DEF"
+then
+	FULL_PPN_DEF="$MAX_PPN"
+fi
+ask FULL_PPN "For a fully allocated node, how many cores to declare"
 ask MODULES_RUN "What modules to load for running TCLB"
 ask MODULES_ADD "What additional modules to load for compilation"
 

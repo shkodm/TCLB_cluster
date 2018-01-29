@@ -65,22 +65,17 @@ function ask {
 	COMM=$1
 	VAL="$(: $VAR)"
 	ASK="$(: $VAR ASK)"
+	DEF="$(: $VAR DEF)"
+	if $def || test -z "$VAL"
+	then
+		VAL="$DEF"
+	fi
 	if test -z "$ASK"
 	then
-		if $def || test -z "$VAL"
-		then
-			VAL="$(: $VAR DEF)"
-		fi
 		if ! test -z "$VAL"
 		then
 			O=" [$VAL]"
 		fi
-		#echo -n "$COMM$O: " >&2
-		#read NEW
-		#if ! test -z "$NEW"
-		#then
-		#	VAL=$NEW
-		#fi
 		if $agree
 		then
 			echo "$COMM: $VAL"
@@ -88,8 +83,16 @@ function ask {
 			read -e -p "$COMM: " -i "$VAL" NEW
 			VAL=$NEW
 		fi
+	elif test "$ASK" == "yn"
+	then
+		if ask_yn "$DEF" "$COMM"
+		then
+			VAL="y"
+		else
+			VAL="n"
+		fi
 	else
-		VAL="$(: $VAR DEF)"
+		VAL="$DEF"
 	fi
 	eval "$VAR=\"$VAL\""
 	echo "$VAR=\"$VAL\"" >>$PP/new.conf.ini
