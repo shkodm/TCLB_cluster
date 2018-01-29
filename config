@@ -6,6 +6,17 @@ PP=$(dirname $0)
 
 source $PP/lib.bash
 
+while true
+do
+	case "$1" in
+		-h|--help) usage;;
+		-y|--yes) agree=true;;
+		-d|--default) def=true;;
+		*) break;;
+	esac
+	shift
+done
+
 source_conf
 ask_init
 
@@ -41,26 +52,11 @@ else
 	TCLB=$(cd $TCLB; pwd)
 fi
 
-PROGENV_l=$(module list 2>&1 | grep PrgEnv | sed 's/^.*) //') #Getting the PrgEnv module loaded now.
-[ -z "$PROGENV" ] && PROGENV="$PROGENV_l"
-echo -n "What PrgEnv you want to use [$PROGENV]: "
-read PROGENV_n
-[ ! -z "$PROGENV_n" ] && PROGENV="$PROGENV_n"
-
-if [ -z "$(module av $PROGENV 2>&1)" ]
-then
-	echo there is no module $PROGENV
-	exit -1;
-fi
-
-LOAD="$LOAD $PROGENV"
-UNLOAD="$UNLOAD $PROGENV_l"
-
 ask CONFOPT "Provide ./configure options you want to use (please use single ' for quotes)"
 
 ask RHOME "What is the path to R (without the bin/ part)"
 
-if -z "$RHOME_ASK"
+if ! test -z "$RHOME_ASK"
 then
 	if [ ! -f "$RHOME/bin/R" ]
 	then
@@ -71,10 +67,10 @@ fi
 
 ask DEBUGQ "What is the name of the debug queue/partition"
 ask MAINQ "What is the name of the main queue/partition to use"
-ask LOAD "What modules to load"
-ask UNLOAD "What modules to unload first"
+ask MODULES_RUN "What modules to load for running TCLB"
+ask MODULES_ADD "What additional modules to load for compilation"
 
-for i in $LOAD $UNLOAD
+for i in $MODULES_RUN $MODULES_ADD
 do
 	if [ -z "$(module av $i 2>&1)" ]
 	then
@@ -86,10 +82,27 @@ done
 
 save_conf
 
+if ! test -z "$MODULES_RUN"
+then
+	MODULES_RUN_LOAD="module load $MODULES_RUN"
+fi
+
+if ! test -z "$MODULES_ADD"
+then
+	MODULES_ADD_LOAD="\$mod_add && module load $MODULES_ADD"
+fi
+
+if ! test -z "$RHOME"
+then
+	RHOME_LOAD="export PATH=\"$RHOME/bin:\$PATH\""
+fi
+
 cat >$PP/mods.ini <<EOF
-module unload $UNLOAD
-module load $LOAD
-$([ -z "$RHOME" ] || echo "export PATH=\"$RHOME/bin:\$PATH\"")
+module purge
+test -z "\$mod_add" && exit -1
+$MODULES_ADD_LOAD
+$MODULES_RUN_LOAD
+$RHOME_LOAD
 
 if ! declare -f pb_msg >/dev/null
 then

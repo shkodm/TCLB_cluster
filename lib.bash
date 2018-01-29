@@ -1,5 +1,8 @@
 # BASH
 
+agree=false
+def=false
+
 function source_conf {
 	if [ -f "$PP/conf.ini" ]
 	then
@@ -64,7 +67,7 @@ function ask {
 	ASK="$(: $VAR ASK)"
 	if test -z "$ASK"
 	then
-		if test -z "$VAL"
+		if $def || test -z "$VAL"
 		then
 			VAL="$(: $VAR DEF)"
 		fi
@@ -78,8 +81,13 @@ function ask {
 		#then
 		#	VAL=$NEW
 		#fi
-		read -e -p "$COMM: " -i "$VAL" NEW
-		VAL=$NEW
+		if $agree
+		then
+			echo "$COMM: $VAL"
+		else
+			read -e -p "$COMM: " -i "$VAL" NEW
+			VAL=$NEW
+		fi
 	else
 		VAL="$(: $VAR DEF)"
 	fi
@@ -102,12 +110,15 @@ function ask_yn {
 	DEF=$1
 	shift
 	MSG=$1
-	if ! test -z "$1"
+	if $agree
 	then
+		echo "$MSG: $DEF"
+		REP="$DEF"
+	else
 		MSG="$MSG [$DEF]"
+		echo -n "$MSG: "
+		read REP
 	fi
-	echo -n "$MSG: "
-	read REP
 	case "$REP" in
 	y|Y|yes|Yes|YES) RET=y;;
 	n|N|no|NO) RET=n;;

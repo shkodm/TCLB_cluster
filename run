@@ -72,7 +72,9 @@ sbatch "$@" <<EOF
 echo "###### Nodes:          #######"
      srun /bin/hostname
 echo "###### Loading modules #######"
-     . $PP/mods.ini
+	source $PP/conf.ini
+	mod_add=false
+	source $PP/mods.ini
 echo "###### --------------- #######"
 echo ""
 	trap "say Errored" ERR
