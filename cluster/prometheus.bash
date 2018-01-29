@@ -5,6 +5,9 @@ echo "You are on the Prometheus cluster"
 CONFOPT_DEF=""
 DEBUGQ_DEF="plgrid-testing"
 DEBUGQ_ASK="no"
+RUN_COMMAND="mpirun"
+RUN_COMMAND_ASK="no"
+
 function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
 	y)

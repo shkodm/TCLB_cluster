@@ -93,6 +93,6 @@ echo ""
 	trap "say Killed" KILL
 	set -e
 	say Started
-	srun $SOLVER $CASE
+	$RUN_COMMAND $SOLVER $CASE
 	say Finished
 EOF

@@ -20,6 +20,7 @@ done
 source_conf
 ask_init
 
+RUN_COMMAND="mpirun"
 GRANT_DEF="$(defgrant)"
 TCLB_DEF="$(pwd)"
 CONFOPT_DEF="--disable-cuda"
@@ -42,6 +43,7 @@ ask CORES_PER_UNIT "What number of cores you want to attach to every process/gpu
 ask CORES_PER_UNIT_FULL "What number of cores to attach on a full node"
 ask MODULES_RUN "What modules to load for running TCLB"
 ask MODULES_ADD "What additional modules to load for compilation"
+ask RUN_COMMAND "What command to use to run MPI application (runmpi|srun|aprun)"
 
 save_conf
 
