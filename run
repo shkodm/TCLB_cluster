@@ -5,38 +5,16 @@ PP=$(dirname $0)
 [ -f $PP/conf.ini ] || exit -1
 . $PP/conf.ini	
 
-if [ -z "$1" ] || [ -z "$2" ]
-then
-	echo Usage: ./run MODEL CASE.xml [cores]
-	exit -1
-fi
-
 MODEL=$1
 shift
 CASE=$1
 shift
-CPUS=$1
+UNITS=$1
 shift
 
-if [ -z "$CPUS" ]
+if [ -z "$MODEL" ] || [ -z "$CASE" ]
 then
-	CPUS=1
-fi
-
-echo Trying to run $CASE with $MODEL model on $CPUS cores...
-
-if [ $CPUS -gt 24 ]
-then
-	PPN=24
-	NODES=$[$CPUS/24]
-else
-	PPN=$CPUS
-	NODES=1
-fi
-
-if [ $CPUS -ne $[$NODES*$PPN] ]
-then
-	echo Requested number of CPUS \($CPUS\) is not $NODES x $PPN
+	echo Usage: ./run MODEL CASE.xml [cores]
 	exit -1
 fi
 
@@ -46,9 +24,6 @@ then
 	exit -1
 fi
 
-NAME=CLB:$CASE
-NCPU=$CPUS
-
 SOLVER=$TCLB/CLB/$MODEL/main
 
 if [ ! -f "$SOLVER" ]
@@ -57,6 +32,32 @@ then
 	echo File not found: $SOLVER
 	exit -1
 fi
+
+
+if [ -z "$UNITS" ]
+then
+	UNITS=1
+fi
+
+echo Trying to run $CASE with $MODEL model on $UNITS cores/gpus...
+
+if [ $UNITS -gt $MAX_PPN ]
+then
+	PPN=$MAX_PPN
+	NODES=$[$UNITS/$MAX_PPN]
+else
+	PPN=$UNITS
+	NODES=1
+fi
+
+if [ $UNITS -ne $[$NODES*$PPN] ]
+then
+	echo Requested number of cores/gpus \($UNITS\) is not $NODES x $PPN
+	exit -1
+fi
+
+NAME=CLB:$CASE
+NCPU=$UNITS
 
 sbatch "$@" <<EOF
 #!/bin/bash -l

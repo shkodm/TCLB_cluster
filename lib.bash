@@ -35,7 +35,7 @@ function save_conf {
 }
 		
 function source_cluster {
-	for i in $PP/cluster/*
+	for i in $PP/cluster/*.bash
 	do
 		hn=$(head -n 1 $i | sed 's/^ *# *//')
 		if hostname | grep "$hn" >/dev/null
@@ -60,12 +60,14 @@ function ask_init {
 }
 
 function ask {
-	VAR=$1
+	VAR="$1"
 	shift
-	COMM=$1
+	COMM="$1"
 	VAL="$(: $VAR)"
 	ASK="$(: $VAR ASK)"
 	DEF="$(: $VAR DEF)"
+	CHECK="${VAR}_CHECK"
+	#echo "var:$VAR | val:$VAL | ask:$ASK | def:$DEF | check:$CHECK"
 	if $def || test -z "$VAL"
 	then
 		VAL="$DEF"
@@ -95,6 +97,16 @@ function ask {
 		VAL="$DEF"
 	fi
 	eval "$VAR=\"$VAL\""
+	if test "x$(type -t "$CHECK")" == "xfunction"
+	then
+		if test "x$ASK" != "xfix"
+		then
+			if ! $CHECK "$VAL"
+			then
+				exit -1;
+			fi
+		fi
+	fi
 	echo "$VAR=\"$VAL\"" >>$PP/new.conf.ini
 }
 
