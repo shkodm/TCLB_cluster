@@ -46,3 +46,14 @@ You can change the default time (1h), name, etc by supplying additional options 
 
 ## Notifications
 The scripts support getting PushBullet notifications based on: https://github.com/llaniewski/my.prompt
+
+## Cluster specific settings
+
+In the `cluster` directory there are settings for specific clusters (like
+prometheus and magnus). The first line of each file is a bash comment with
+the pattern for hostname to match.
+
+### Contributing
+
+If you want to add support for another cluster, please add another file in
+the `cluster` directory.
