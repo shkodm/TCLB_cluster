@@ -39,35 +39,45 @@ then
 	UNITS=1
 fi
 
-echo Trying to run $CASE with $MODEL model on $UNITS cores/gpus...
-
-if [ $UNITS -gt $MAX_PPN ]
+if [ $UNITS -gt $MAX_UNITS_PER_NODE ]
 then
-	PPN=$MAX_PPN
-	NODES=$[$UNITS/$MAX_PPN]
+	UNITS_PER_NODE=$MAX_UNITS_PER_NODE
+	NODES=$[$UNITS/$UNITS_PER_NODE]
+	CORES_PER_UNIT=$CORES_PER_UNIT_FULL
 else
-	PPN=$UNITS
+	UNITS_PER_NODE=$UNITS
 	NODES=1
 fi
 
-if [ $UNITS -ne $[$NODES*$PPN] ]
+
+if [ $UNITS -ne $[$NODES*$UNITS_PER_NODE] ]
 then
-	echo Requested number of cores/gpus \($UNITS\) is not $NODES x $PPN
+	echo Requested number of cores/gpus \($UNITS\) is not $NODES x $UNITS_PER_NODE
 	exit -1
 fi
 
+CORES=$[$UNITS*$CORES_PER_UNIT]
+
+echo "Trying to run $CASE with $MODEL model on $UNITS cores/gpus ($NODES x $UNITS_PER_NODE x $CORES_PER_UNIT)..."
+
 NAME=CLB:$CASE
-NCPU=$UNITS
+
+if test "$RUN_GPU" == "y"
+then
+	GPU_HEADER="#SBATCH --gres=gpu:$UNITS_PER_NODE"
+fi
 
 sbatch "$@" <<EOF
 #!/bin/bash -l
 #SBATCH -J $NAME
 #SBATCH -N $NODES
-#SBATCH -n $NCPU
-#SBATCH --ntasks-per-node=$PPN
+#SBATCH -n $UNITS
+#SBATCH -c $CORES_PER_UNIT
+#SBATCH --ntasks-per-node=$UNITS_PER_NODE
 #SBATCH --time=01:00:00 
 #SBATCH -A $GRANT
-#SBATCH -p workq
+#SBATCH -p $MAINQ
+$GPU_HEADER
  
      cd \$SLURM_SUBMIT_DIR 
 echo "###### Nodes:          #######"
