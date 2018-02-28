@@ -2,7 +2,7 @@
 
 echo "Running on Magnus."
 
-RUN_COMMAND="srun"
+RUN_COMMAND_DEF="srun"
 RUN_COMMAND_ASK="no"
 DEBUGQ_DEF="debugq"
 DEBUGQ_ASK="no"
