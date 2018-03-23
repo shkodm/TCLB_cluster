@@ -85,7 +85,7 @@ echo "###### Nodes:          #######"
 echo "###### Loading modules #######"
 	source $PP/conf.ini
 	mod_add=false
-	source $PP/mods.ini
+	source $PP/mods.ini RUN
 echo "###### --------------- #######"
 echo ""
 	trap "say Errored" ERR

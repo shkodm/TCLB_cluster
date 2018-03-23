@@ -2,27 +2,16 @@
 
 echo "Running on Magnus."
 
-RUN_COMMAND_DEF="srun"
-RUN_COMMAND_ASK="no"
-DEBUGQ_DEF="debugq"
-DEBUGQ_ASK="no"
-MAINQ_DEF="workq"
-MAINQ_ASK="no"
-RUN_GPU_DEF="n"
-RUN_GPU_ASK="no"
-MODULES_RUN_DEF="PrgEnv-cray"
-MODULES_UNLOAD_DEF="PrgEnv-cray"
-MODULES_UNLOAD_ASK="no"
-CONFOPT_DEF="--disable-cuda"
-MAX_UNITS_PER_NODE_DEF=24
-CORES_PER_UNIT_DEF=1
-CORES_PER_UNIT_FULL_DEF=1
-MAX_UNITS_PER_NODE_ASK="no"
-CORES_PER_UNIT_ASK="no"
-CORES_PER_UNIT_FULL_ASK="no"
-MODULES_ADD_DEF=""
-MODULES_ADD_ASK="no"
-MODULES_RUN_ASK="no"
-
-[ -z "$RHOME" ] && RHOME=$(echo /pawsey/cle*/apps/PrgEnv-gnu/*/gcc/*/haswell/r/*/bin/R | sed 's|bin/R||' | head -n1)
-RHOME_ASK=""
+fix RUN_COMMAND "srun"
+fix DEBUGQ "debugq"
+fix MAINQ "workq"
+fix RUN_GPU "n"
+def MODULES_RUN "PrgEnv-gnu"
+fix MODULES_UNLOAD "PrgEnv-cray"
+def CONFOPT "--disable-cuda --with-cpp-flags='-O2' CXX=CC CC=cc"
+fix MAX_UNITS_PER_NODE 24
+fix CORES_PER_UNIT 1
+fix CORES_PER_UNIT_FULL 1
+fix MODULES_ADD ""
+fix PREPARE "ulimit -S -s 81920"
+def RHOME "$(echo /opt/R/*/bin/R | cut -f 1 -d ' ' | sed 's|bin/R||')"

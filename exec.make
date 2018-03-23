@@ -3,7 +3,8 @@
 PP=$(dirname $0)
 source $PP/conf.ini
 mod_add=true
-source $PP/mods.ini
+source $PP/mods.ini MAKE
 cd $TCLB
+
 
 srun make $@

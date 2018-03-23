@@ -29,6 +29,10 @@ RHOME_ASK="fix"
 RUN_GPU_ASK="yn"
 RUN_GPU_DEF="y"
 MODULES_UNLOAD_DEF="purge"
+PREPARE_ASK="no"
+PREPARE_CONFIGURE_ASK="no"
+PREPARE_MAKE_ASK="no"
+PREPARE_RUN_ASK="no"
 
 source_cluster
 
@@ -45,6 +49,10 @@ ask CORES_PER_UNIT_FULL "What number of cores to attach on a full node"
 ask MODULES_RUN "What modules to load for running TCLB"
 ask MODULES_ADD "What additional modules to load for compilation"
 ask MODULES_UNLOAD "What modules to unload for running/compiling TCLB"
+ask PREPARE "What commands to run before running anything"
+ask PREPARE_CONFIGURE "What commands to run before running anything"
+ask PREPARE_MAKE "What commands to run before running make"
+ask PREPARE_RUN "What commands to run before running TCLB"
 ask RUN_COMMAND "What command to use to run MPI application (runmpi|srun|aprun)"
 
 save_conf
@@ -75,6 +83,10 @@ then
 fi
 
 cat >$PP/mods.ini <<EOF
+
+TYPE=\$1
+test -z "\$TYPE" && TYPE=MAKE
+
 function quiet_run {
 	echo -n "\$@... "
 	if ! \$@ >/dev/null 2>&1
@@ -85,11 +97,6 @@ function quiet_run {
 		echo "OK"
 	fi
 }
-test -z "\$mod_add" && exit -1
-$MODULES_UNLOAD_LOAD
-$MODULES_ADD_LOAD
-$MODULES_RUN_LOAD
-$RHOME_LOAD
 
 if ! declare -f pb_msg >/dev/null
 then
@@ -103,6 +110,37 @@ function say {
 	MSG="\$@"
 	pb_msg "\$SLURM_JOB_NAME" "\$MSG (after \$SECONDS s)"
 }
+
+$(if ! test -z "$MODULES_UNLOAD"
+then
+	if test "$MODULES_UNLOAD" == "purge"
+	then
+		echo "quiet_run module purge" 
+	else
+		echo "quiet_run module unload $MODULES_UNLOAD" 
+	fi
+fi)
+
+$(test -z "$RHOME" || echo "export PATH=\"$RHOME/bin:\$PATH\"" )
+$(test -z "$MODULES_RUN" || echo "quiet_run module load $MODULES_RUN" )
+
+case "\$TYPE" in
+"MAKE")
+	$(test -z "$MODULES_ADD" || echo "quiet_run module load $MODULES_ADD" )
+	$PREPARE_MAKE
+	;;
+"CONFIGURE")
+	$(test -z "$MODULES_ADD" || echo "quiet_run module load $MODULES_ADD" )
+	$PREPARE_CONFIGURE
+	;;
+"RUN")
+	$PREPARE_RUN
+	;;
+esac
+
+$PREPARE
+
+
 EOF
 
 if ask_no "Do you want to install needed R packages now?"

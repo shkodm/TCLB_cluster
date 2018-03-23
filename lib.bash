@@ -156,3 +156,14 @@ function ask_yes {
 function ask_no {
 	ask_yn n "$@"
 }
+
+function def {
+	eval "${1}_DEF=\"$2\""
+	eval "${1}_ASK=\"\""
+}
+
+function fix {
+	eval "${1}_DEF=\"$2\""
+	eval "${1}_ASK=\"no\""
+}
+	
