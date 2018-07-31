@@ -13,7 +13,7 @@ function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
 	y)
 		MAINQ_DEF="plgrid-gpu"
-		MODULES_RUN_DEF="apps/cuda/9.0 tools/openmpi/2.0.1-gcc-4.9.2"
+		MODULES_RUN_DEF="tools/openmpi/2.0.1-gcc-4.9.2"
 		CONFOPT_DEF="--with-cuda-arch=sm_30"
 		MAX_UNITS_PER_NODE_DEF=2
 		CORES_PER_UNIT_DEF=1
@@ -40,6 +40,11 @@ function RUN_GPU_CHECK {
 	return 0
 }
 MAINQ_ASK="no"
-MODULES_ADD_DEF="apps/r"
+
+MODULES_ADD_DEF="apps/r"  
+# Prometheus's module apps/r loads apps/cuda/9.0 as dependency. 
+# Moreover apps/r loads tools/gcc/6.4.0 which causes conflict with openmpi/2.0.1-gcc-4.9.2, 
+# thus apps/r (with its dependencies) must be called first $MODULES_ADD, then override with $MODULES_RUN
+
 MODULES_ADD_ASK="no"
 MODULES_RUN_ASK="no"

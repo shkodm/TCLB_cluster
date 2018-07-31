@@ -122,15 +122,16 @@ then
 fi)
 
 $(test -z "$RHOME" || echo "export PATH=\"$RHOME/bin:\$PATH\"" )
-$(test -z "$MODULES_RUN" || echo "quiet_run module load $MODULES_RUN" )
 
 case "\$TYPE" in
 "MAKE")
 	$(test -z "$MODULES_ADD" || echo "quiet_run module load $MODULES_ADD" )
+	$(test -z "$MODULES_RUN" || echo "quiet_run module load $MODULES_RUN" )
 	$PREPARE_MAKE
 	;;
 "CONFIGURE")
 	$(test -z "$MODULES_ADD" || echo "quiet_run module load $MODULES_ADD" )
+	$(test -z "$MODULES_RUN" || echo "quiet_run module load $MODULES_RUN" )
 	$PREPARE_CONFIGURE
 	;;
 "RUN")
