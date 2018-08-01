@@ -135,6 +135,7 @@ case "\$TYPE" in
 	$PREPARE_CONFIGURE
 	;;
 "RUN")
+	$(test -z "$MODULES_RUN" || echo "quiet_run module load $MODULES_RUN" )
 	$PREPARE_RUN
 	;;
 esac
