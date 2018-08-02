@@ -6,5 +6,5 @@ mod_add=true
 source $PP/mods.ini CONFIGURE
 cd $TCLB
 
-srun make configure
-srun ./configure "$@"
+$RUN_COMMAND make configure
+$RUN_COMMAND ./configure "$@"

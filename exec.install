@@ -6,4 +6,4 @@ mod_add=true
 source $PP/mods.ini CONFIGURE
 cd $TCLB
 
-srun $TCLB/tools/install.sh $@
+$RUN_COMMAND $TCLB/tools/install.sh $@

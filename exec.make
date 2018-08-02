@@ -7,4 +7,4 @@ source $PP/mods.ini MAKE
 cd $TCLB
 
 
-srun make $@
+$RUN_COMMAND make $@

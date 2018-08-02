@@ -7,7 +7,7 @@ fix DEBUGQ "debugq"
 fix MAINQ "workq"
 fix RUN_GPU "n"
 def MODULES_RUN "PrgEnv-gnu"
-fix MODULES_UNLOAD "PrgEnv-cray"
+fix MODULES_BASE "-PrgEnv-cray"
 def CONFOPT "--disable-cuda --with-cpp-flags='-O2' CXX=CC CC=cc"
 fix MAX_UNITS_PER_NODE 24
 fix CORES_PER_UNIT 1
