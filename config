@@ -28,7 +28,7 @@ RHOME_DEF=$(R RHOME 2>/dev/null)
 RHOME_ASK="fix"
 RUN_GPU_ASK="yn"
 RUN_GPU_DEF="y"
-MODULES_UNLOAD_DEF="purge"
+MODULES_BASE_DEF="purge"
 PREPARE_ASK="no"
 PREPARE_CONFIGURE_ASK="no"
 PREPARE_MAKE_ASK="no"
@@ -46,9 +46,9 @@ ask MAINQ "What is the name of the main queue/partition to use"
 ask MAX_UNITS_PER_NODE "What is the maximal number of process/gpus per node"
 ask CORES_PER_UNIT "What number of cores you want to attach to every process/gpu"
 ask CORES_PER_UNIT_FULL "What number of cores to attach on a full node"
-ask MODULES_RUN "What modules to load for running TCLB"
-ask MODULES_ADD "What additional modules to load for compilation"
-ask MODULES_UNLOAD "What modules to unload for running/compiling TCLB"
+ask MODULES_BASE "What modules to load ('-' for unload) for running/compiling TCLB"
+ask MODULES_ADD  "What additional modules to load for compilation"
+ask MODULES_RUN  "What modules to load ('-' for unload) for running TCLB"
 ask PREPARE "What commands to run before running anything"
 ask PREPARE_CONFIGURE "What commands to run before running anything"
 ask PREPARE_MAKE "What commands to run before running make"
@@ -67,16 +67,6 @@ then
 	MODULES_ADD_LOAD="\$mod_add && quiet_run module load $MODULES_ADD"
 fi
 
-if ! test -z "$MODULES_UNLOAD"
-then
-	if test "$MODULES_UNLOAD" == "purge"
-	then
-		MODULES_UNLOAD_LOAD="quiet_run module purge"
-	else
-		MODULES_UNLOAD_LOAD="quiet_run module unload $MODULES_UNLOAD"
-	fi
-fi
-
 if ! test -z "$RHOME"
 then
 	RHOME_LOAD="export PATH=\"$RHOME/bin:\$PATH\""
@@ -89,11 +79,16 @@ test -z "\$TYPE" && TYPE=MAKE
 
 function quiet_run {
 	echo -n "\$@... "
-	if ! \$@ >/dev/null 2>&1
+	TMPF=\$(mktemp)
+	if ! \$@ >"\$TMPF" 2>&1
 	then
-		echo "ERROR"
+		echo "ERROR ------";
+		cat "\$TMPF";
+		echo "------- END -------";
+		rm "\$TMPF";
 		exit -1;
 	else
+		rm "\$TMPF";
 		echo "OK"
 	fi
 }
@@ -111,29 +106,19 @@ function say {
 	pb_msg "\$SLURM_JOB_NAME" "\$MSG (after \$SECONDS s)"
 }
 
-$(if ! test -z "$MODULES_UNLOAD"
-then
-	if test "$MODULES_UNLOAD" == "purge"
-	then
-		echo "quiet_run module purge" 
-	else
-		echo "quiet_run module unload $MODULES_UNLOAD" 
-	fi
-fi)
-
 $(test -z "$RHOME" || echo "export PATH=\"$RHOME/bin:\$PATH\"" )
 
 case "\$TYPE" in
 "MAKE")
-	$(module_list $MODULES_ADD $MODULES_RUN )
+	$(module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN )
 	$PREPARE_MAKE
 	;;
 "CONFIGURE")
-	$(module_list $MODULES_ADD $MODULES_RUN )
+	$(module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN )
 	$PREPARE_CONFIGURE
 	;;
 "RUN")
-	$(module_list $MODULES_RUN )
+	$(module_list $MODULES_BASE $MODULES_RUN )
 	$PREPARE_RUN
 	;;
 esac

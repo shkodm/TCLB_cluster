@@ -7,7 +7,7 @@ DEBUGQ_DEF="plgrid-testing"
 DEBUGQ_ASK="no"
 RUN_COMMAND_DEF="mpirun"
 RUN_COMMAND_ASK="no"
-MODULES_UNLOAD_ASK="no"
+MODULES_BASE_ASK="no"
 
 function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
