@@ -166,4 +166,22 @@ function fix {
 	eval "${1}_DEF=\"$2\""
 	eval "${1}_ASK=\"no\""
 }
+
+function module_list {
+	for i in $@
+	do
+		case "$i" in
+		-*)
+			echo "quiet_run module unload" ${i:1}
+			;;
+		purge)
+			echo "quiet_run module purge"
+			;;
+		*)
+			echo "quiet_run module load" $i
+			;;
+		esac
+	done
+}
+
 	

@@ -125,17 +125,15 @@ $(test -z "$RHOME" || echo "export PATH=\"$RHOME/bin:\$PATH\"" )
 
 case "\$TYPE" in
 "MAKE")
-	$(test -z "$MODULES_ADD" || echo "quiet_run module load $MODULES_ADD" )
-	$(test -z "$MODULES_RUN" || echo "quiet_run module load $MODULES_RUN" )
+	$(module_list $MODULES_ADD $MODULES_RUN )
 	$PREPARE_MAKE
 	;;
 "CONFIGURE")
-	$(test -z "$MODULES_ADD" || echo "quiet_run module load $MODULES_ADD" )
-	$(test -z "$MODULES_RUN" || echo "quiet_run module load $MODULES_RUN" )
+	$(module_list $MODULES_ADD $MODULES_RUN )
 	$PREPARE_CONFIGURE
 	;;
 "RUN")
-	$(test -z "$MODULES_RUN" || echo "quiet_run module load $MODULES_RUN" )
+	$(module_list $MODULES_RUN )
 	$PREPARE_RUN
 	;;
 esac
