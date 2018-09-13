@@ -7,4 +7,4 @@ PP=$(dirname $0)
 
 PPN=$[$CORES_PER_UNIT_FULL*$MAX_UNITS_PER_NODE]
 echo "Running make on $PPN cores"
-salloc -A $GRANT -p $DEBUGQ --ntasks=1 --cpus-per-task=$PPN $PP/exec.make -j$PPN $@
+salloc -A $GRANT -p $DEBUGQ --ntasks=1 --cpus-per-task=$PPN $PP/exec.make $@
