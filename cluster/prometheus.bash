@@ -13,7 +13,7 @@ function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
 	y)
 		MAINQ_DEF="plgrid-gpu"
-		MODULES_RUN_DEF="plgrid/apps/cuda/9.0 plgrid/tools/openmpi/2.1.1-gcc-6.4.0"
+		MODULES_RUN_DEF="plgrid/tools/openmpi/3.0.0-gcc-4.9.2 plgrid/apps/cuda/9.0"
 		CONFOPT_DEF="--with-cuda-arch=sm_30"
 		MAX_UNITS_PER_NODE_DEF=2
 		CORES_PER_UNIT_DEF=1
