@@ -2,7 +2,7 @@ function GRANT_CHECK {
 	if [ -z "$GRANT" ]
 	then
 		echo No grant provided.
-		return 1
+		return 0
 	fi
 	if ! checkgrant $GRANT
 	then

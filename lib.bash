@@ -184,4 +184,11 @@ function module_list {
 	done
 }
 
+
+function arg {
+	if ! test -z "$2"
+	then
+		echo "$1" "$2"
+	fi
+}
 	

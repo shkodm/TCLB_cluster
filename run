@@ -4,6 +4,7 @@ PP=$(dirname $0)
 [ -f $PP/conf.ini ] || $PP/config
 [ -f $PP/conf.ini ] || exit -1
 . $PP/conf.ini	
+. $PP/lib.bash
 
 MODEL=$1
 shift
@@ -67,7 +68,7 @@ then
 	GPU_HEADER="#SBATCH --gres=gpu:$UNITS_PER_NODE"
 fi
 
-sbatch "$@" <<EOF
+sbatch $(arg -A $GRANT) $(arg -p $MAINQ) "$@" <<EOF
 #!/bin/bash -l
 #SBATCH -J $NAME
 #SBATCH -N $NODES
@@ -75,8 +76,6 @@ sbatch "$@" <<EOF
 #SBATCH -c $CORES_PER_UNIT
 #SBATCH --ntasks-per-node=$UNITS_PER_NODE
 #SBATCH --time=01:00:00 
-#SBATCH -A $GRANT
-#SBATCH -p $MAINQ
 $GPU_HEADER
  
      cd \$SLURM_SUBMIT_DIR 

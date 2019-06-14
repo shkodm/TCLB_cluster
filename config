@@ -130,10 +130,10 @@ EOF
 
 if ask_no "Do you want to install needed R packages now?"
 then
-	salloc -p $DEBUGQ --ntasks=1 $PP/exec.install skipssl rdep
+	salloc $(arg -p $DEBUGQ) --ntasks=1 $PP/exec.install skipssl rdep
 fi
 
 if ask_yes "Do you want to run ./configure now?"
 then
-	salloc -p $DEBUGQ --ntasks=1 $PP/exec.configure $CONFOPT
+	salloc $(arg -p $DEBUGQ) --ntasks=1 $PP/exec.configure $CONFOPT
 fi
