@@ -4,11 +4,11 @@ function GRANT_CHECK {
 		echo No grant provided.
 		return 0
 	fi
-	if ! checkgrant $GRANT
-	then
-		echo No such grant: $GRANT
-		return 1
-	fi
+#	if ! checkgrant $GRANT
+#	then
+#		echo No such grant: $GRANT
+#		return 1
+#	fi
 	return 0
 }
 
