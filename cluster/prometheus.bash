@@ -14,7 +14,7 @@ function RUN_GPU_CHECK {
 	y)
 		MAINQ_DEF="plgrid-gpu"
 		MODULES_RUN_DEF="plgrid/apps/r/3.4.4 plgrid/tools/openmpi/3.0.0-gcc-4.9.2 plgrid/apps/cuda/9.0"
-		CONFOPT_DEF="--with-cuda-arch=sm_30 --enable-cpp11"
+		CONFOPT_DEF="--with-cuda-arch=sm_30"
 		MAX_TASKS_PER_NODE_DEF=2
 		MAX_TASKS_PER_NODE_FOR_COMPILATION_DEF=12
 		CORES_PER_TASK_FULL_DEF=1
