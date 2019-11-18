@@ -10,7 +10,7 @@ MODEL=$1
 shift
 CASE=$1
 shift
-UNITS=$1
+TASKS=$1
 shift
 
 if [ -z "$MODEL" ] || [ -z "$CASE" ]
@@ -35,46 +35,44 @@ then
 fi
 
 
-if [ -z "$UNITS" ]
+if [ -z "$TASKS" ]
 then
-	UNITS=1
+	TASKS=1
 fi
 
-if [ $UNITS -gt $MAX_UNITS_PER_NODE ]
+if [ $TASKS -gt $MAX_TASKS_PER_NODE ]
 then
-	UNITS_PER_NODE=$MAX_UNITS_PER_NODE
-	NODES=$[$UNITS/$UNITS_PER_NODE]
-	CORES_PER_UNIT=$CORES_PER_UNIT_FULL
+	TASKS_PER_NODE=$MAX_TASKS_PER_NODE
+	NODES=$[$TASKS/$TASKS_PER_NODE]
+	CORES_PER_TASK=$CORES_PER_TASK_FULL
 else
-	UNITS_PER_NODE=$UNITS
+	TASKS_PER_NODE=$TASKS
 	NODES=1
+	CORES_PER_TASK=1
 fi
 
-
-if [ $UNITS -ne $[$NODES*$UNITS_PER_NODE] ]
+if [ $TASKS -ne $[$NODES*$TASKS_PER_NODE] ]
 then
-	echo Requested number of cores/gpus \($UNITS\) is not $NODES x $UNITS_PER_NODE
+	echo Requested number of cores/gpus \($TASKS\) is not $NODES x $TASKS_PER_NODE
 	exit -1
 fi
 
-CORES=$[$UNITS*$CORES_PER_UNIT]
-
-echo "Trying to run $CASE with $MODEL model on $UNITS cores/gpus ($NODES x $UNITS_PER_NODE x $CORES_PER_UNIT)..."
+echo "Trying to run $CASE with $MODEL model on $TASKS cores/gpus (NODESxTASKS_PER_NODExCORES_PER_TASK: $NODES x $TASKS_PER_NODE x $CORES_PER_TASK)..."
 
 NAME=CLB:$CASE
 
 if test "$RUN_GPU" == "y"
 then
-	GPU_HEADER="#SBATCH --gres=gpu:$UNITS_PER_NODE"
+	GPU_HEADER="#SBATCH --gres=gpu:$TASKS_PER_NODE"
 fi
 
 sbatch $(arg -A $GRANT) $(arg -p $MAINQ) "$@" <<EOF
 #!/bin/bash -l
 #SBATCH -J $NAME
-#SBATCH -N $NODES
-#SBATCH -n $UNITS
-#SBATCH -c $CORES_PER_UNIT
-#SBATCH --ntasks-per-node=$UNITS_PER_NODE
+#SBATCH --nodes=$NODES 
+#SBATCH --ntasks=$TASKS
+#SBATCH --cpus-per-task=$CORES_PER_TASK
+#SBATCH --ntasks-per-node=$TASKS_PER_NODE
 #SBATCH --time=01:00:00 
 $GPU_HEADER
  

@@ -6,6 +6,6 @@ PP=$(dirname $0)
 . $PP/lib.bash
 . $PP/conf.ini
 
-PPN=$[$CORES_PER_UNIT_FULL*$MAX_UNITS_PER_NODE]
+PPN=$[$CORES_PER_TASK_FULL*$MAX_TASKS_PER_NODE_FOR_COMPILATION]
 echo "Running make on $PPN cores"
 salloc $(arg -A $GRANT) $(arg -p $DEBUGQ) --ntasks=1 --cpus-per-task=$PPN $PP/exec.make -j$PPN $@
