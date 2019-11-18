@@ -40,16 +40,16 @@ then
 	TASKS=1
 fi
 
-if [ $TASKS -gt $MAX_UNITS_PER_NODE ]
+if [ $TASKS -gt $MAX_TASKS_PER_NODE ]
 then
-	TASKS_PER_NODE=$MAX_UNITS_PER_NODE
+	TASKS_PER_NODE=$MAX_TASKS_PER_NODE
 	NODES=$[$TASKS/$TASKS_PER_NODE]
-	CORES_PER_TASK=$CORES_PER_UNIT_FULL
+	CORES_PER_TASK=$CORES_PER_TASK_FULL
 else
 	TASKS_PER_NODE=$TASKS
 	NODES=1
+	CORES_PER_TASK=1
 fi
-
 
 if [ $TASKS -ne $[$NODES*$TASKS_PER_NODE] ]
 then
@@ -69,9 +69,9 @@ fi
 sbatch $(arg -A $GRANT) $(arg -p $MAINQ) "$@" <<EOF
 #!/bin/bash -l
 #SBATCH -J $NAME
-#SBATCH --nodes $NODES 
-#SBATCH --ntasks $TASKS
-#SBATCH --cpus-per-task $CORES_PER_UNIT
+#SBATCH --nodes=$NODES 
+#SBATCH --ntasks=$TASKS
+#SBATCH --cpus-per-task=$CORES_PER_TASK
 #SBATCH --ntasks-per-node=$TASKS_PER_NODE
 #SBATCH --time=01:00:00 
 $GPU_HEADER

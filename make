@@ -6,7 +6,9 @@ PP=$(dirname $0)
 . $PP/lib.bash
 . $PP/conf.ini
 
-PPN=$[$CORES_PER_UNIT_FULL*$MAX_UNITS_PER_NODE_DEF_FOR_COMPILATION]
+
+
+PPN=$[$CORES_PER_TASK_FULL * $MAX_TASKS_PER_NODE_FOR_COMPILATION]
 
 echo "Running make on $PPN cores"
 
