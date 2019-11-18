@@ -13,7 +13,7 @@ function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
 	y)
 		MAINQ_DEF="plgrid-gpu"
-		MODULES_RUN_DEF="plgrid/tools/openmpi/3.0.0-gcc-4.9.2 plgrid/apps/cuda/9.0"
+		MODULES_RUN_DEF="plgrid/apps/r/3.4.4 plgrid/tools/openmpi/3.0.0-gcc-4.9.2 plgrid/apps/cuda/9.0"
 		CONFOPT_DEF="--with-cuda-arch=sm_30"
 		MAX_UNITS_PER_NODE_DEF=2
 		MAX_UNITS_PER_NODE_DEF_FOR_COMPILATION=12
@@ -43,7 +43,7 @@ function RUN_GPU_CHECK {
 }
 MAINQ_ASK="no"
 
-MODULES_ADD_DEF="plgrid/apps/r/3.4.4 -plgrid/apps/cuda"  
+MODULES_ADD_DEF="plgrid/apps/r/3.4.4 plgrid/apps/cuda"  
 # Prometheus's module apps/r loads apps/cuda/9.0 as dependency. 
 # apps/r (with its dependencies) must be called first $MODULES_ADD, then override with $MODULES_RUN
 
