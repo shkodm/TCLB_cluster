@@ -9,6 +9,12 @@ RUN_COMMAND_DEF="mpirun"
 RUN_COMMAND_ASK="no"
 MODULES_BASE_ASK="no"
 
+# Prometheus - hardware info:
+# Processors per node:  2x Intel Xeon E5-2680v3 
+# Cores per node 24
+# Memory per node: 128 GB --> default setting is 5GB per core
+# GPU per node: 2x Nvidia Tesla K40 XL
+
 function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
 	y)
@@ -18,9 +24,11 @@ function RUN_GPU_CHECK {
 		MAX_TASKS_PER_NODE_DEF=2
 		MAX_TASKS_PER_NODE_FOR_COMPILATION_DEF=12
 		CORES_PER_TASK_FULL_DEF=1
-		MAX_TASKS_PER_NODE_ASK="no"
+		MEMORY_PER_CORE_DEF=40
+		MAX_TASKS_PER_NODE_ASK="yes"
 		MAX_TASKS_PER_NODE_FOR_COMPILATION_ASK='no'
 		CORES_PER_TASK_FULL_ASK="no"
+		MEMORY_PER_CORE_ASK="no"
 		;;
 	n)
 		MAINQ_DEF="plgrid"
@@ -29,9 +37,11 @@ function RUN_GPU_CHECK {
 		MAX_TASKS_PER_NODE_DEF=12
 		MAX_TASKS_PER_NODE_FOR_COMPILATION_DEF=12
 		CORES_PER_TASK_FULL_DEF=1
-		MAX_TASKS_PER_NODE_ASK="no"
+		MEMORY_PER_CORE_DEF=10
+		MAX_TASKS_PER_NODE_ASK="yes"
 		MAX_TASKS_PER_NODE_FOR_COMPILATION_ASK='no'
 		CORES_PER_TASK_FULL_ASK="no"
+		MEMORY_PER_CORE_ASK="no"
 		;;
 	*)
 		echo "RUN_GPU should be y or n!"
@@ -43,7 +53,7 @@ MAINQ_ASK="no"
 
 MODULES_ADD_DEF="plgrid/apps/r/3.4.4 plgrid/apps/cuda"  
 # Prometheus's module apps/r loads apps/cuda/9.0 as dependency. 
-# apps/r (with its dependencies) must be called first $MODULES_ADD, then override with $MODULES_RUN
+# apps/r (with its dependencies) must be called first with $MODULES_ADD, then override (prepend path) with $MODULES_RUN
 
 MODULES_ADD_ASK="no"
 MODULES_RUN_ASK="no"
