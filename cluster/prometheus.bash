@@ -2,6 +2,7 @@
 
 echo "You are on the Prometheus cluster"
 
+ENGINE=slurm
 CONFOPT_DEF=""
 DEBUGQ_DEF="plgrid-testing"
 DEBUGQ_ASK="no"
