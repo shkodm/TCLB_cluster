@@ -98,6 +98,8 @@ echo "###### Loading modules #######"
 	mod_add=false
 	source $PP/mods.ini RUN
 echo "###### --------------- #######"
+	echo -e "Executing command:\n$RUN_COMMAND $SOLVER $CASE\n"
+echo "###### --------------- #######"	
 echo ""
 	trap "say Errored" ERR
 	trap "say Terminated" TERM

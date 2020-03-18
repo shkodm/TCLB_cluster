@@ -6,5 +6,14 @@ mod_add=true
 source $PP/mods.ini CONFIGURE
 cd $TCLB
 
-$RUN_COMMAND make configure
-$RUN_COMMAND ./configure "$@"
+
+
+
+if hostname | grep "rysy\.icm\.edu\.pl" >/dev/null
+then
+    srun $RUN_COMMAND make configure
+    srun $RUN_COMMAND ./configure "$@"
+else
+    $RUN_COMMAND make configure
+    $RUN_COMMAND ./configure "$@"
+fi
