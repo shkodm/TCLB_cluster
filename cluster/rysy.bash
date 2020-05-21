@@ -33,7 +33,8 @@ function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
 	y)
 		echo -e "[y] has been choosen."
-		def RUN_COMMAND "singularity exec --nv $HOME/TCLB/tclb_latest.sif"
+		def SINGULARITY_COMMAND "singularity exec --nv $HOME/TCLB/tclb_latest.sif"
+		def RUN_COMMAND "mpirun"
 		def CONFOPT "--enable-double --enable-cpp11 --with-cuda-arch=sm_60"
 		def MAX_TASKS_PER_NODE 4
 		def MAX_TASKS_PER_NODE_FOR_COMPILATION 24

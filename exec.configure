@@ -7,12 +7,10 @@ source $PP/mods.ini CONFIGURE
 cd $TCLB
 
 
-
-
 if hostname | grep "rysy\.icm\.edu\.pl" >/dev/null
 then
-    srun $RUN_COMMAND make configure
-    srun $RUN_COMMAND ./configure "$@"
+    srun $SINGULARITY_COMMAND make configure
+    srun $SINGULARITY_COMMAND ./configure "$@"
 else
     $RUN_COMMAND make configure
     $RUN_COMMAND ./configure "$@"
