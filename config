@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#set -e
+# set -e
 
 PP=$(dirname $0)
 
@@ -20,7 +20,8 @@ done
 source_conf
 ask_init
 
-RUN_COMMAND="mpirun"
+# RUN_COMMAND="mpirun"
+RUN_COMMAND_ASK="y"
 GRANT_DEF="$(defgrant)"
 TCLB_DEF="$(pwd)"
 CONFOPT_DEF="--disable-cuda"
@@ -44,8 +45,9 @@ ask RHOME "What is the path to R (without the bin/ part)"
 ask DEBUGQ "What is the name of the debug queue/partition"
 ask MAINQ "What is the name of the main queue/partition to use"
 ask MAX_TASKS_PER_NODE "What is the maximal number of (mpi) processes/gpus per node"
-ask MAX_TASKS_PER_NODE_FOR_COMPILATION "What is the maximal number of (mpi) process/gpus per node - for compilation"
-ask CORES_PER_TASK_FULL "What number of cores to attach on a full node"
+ask MAX_TASKS_PER_NODE_FOR_COMPILATION "What is the maximal number of (mpi) processes/gpus per node - for compilation"
+ask CORES_PER_TASK_FULL "How many cores per task (i.e. mpi processes)"
+ask MEMORY_PER_CORE "How much memory (GB) per core shall be declared (reserved)"
 ask MODULES_BASE "What modules to load ('-' for unload) for running/compiling TCLB"
 ask MODULES_ADD  "What additional modules to load for compilation"
 ask MODULES_RUN  "What modules to load ('-' for unload) for running TCLB"
@@ -53,7 +55,7 @@ ask PREPARE "What commands to run before running anything"
 ask PREPARE_CONFIGURE "What commands to run before running anything"
 ask PREPARE_MAKE "What commands to run before running make"
 ask PREPARE_RUN "What commands to run before running TCLB"
-ask RUN_COMMAND "What command to use to run MPI application (runmpi|srun|aprun)"
+ask RUN_COMMAND "What command to use to run MPI application (runmpi|srun|aprun|singularity exec|singularity exec --nv)"
 
 save_conf
 
@@ -135,5 +137,11 @@ fi
 
 if ask_yes "Do you want to run ./configure now?"
 then
-	salloc $(arg -p $DEBUGQ) --ntasks=1 $PP/exec.configure $CONFOPT
+	
+	if hostname | grep "rysy\.icm\.edu\.pl" >/dev/null
+	then
+		salloc $(arg -A $GRANT) --ntasks=1 $PP/exec.configure $CONFOPT
+	else
+		salloc $(arg -p $DEBUGQ) --ntasks=1 $PP/exec.configure $CONFOPT
+	fi
 fi

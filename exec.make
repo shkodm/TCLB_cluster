@@ -7,4 +7,9 @@ source $PP/mods.ini MAKE
 cd $TCLB
 
 
-$RUN_COMMAND make $@
+if hostname | grep "rysy\.icm\.edu\.pl" >/dev/null
+then
+    srun $RUN_COMMAND make $@
+else
+    $RUN_COMMAND make $@
+fi
