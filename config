@@ -34,6 +34,7 @@ PREPARE_ASK="no"
 PREPARE_CONFIGURE_ASK="no"
 PREPARE_MAKE_ASK="no"
 PREPARE_RUN_ASK="no"
+SINGULARITY_COMMAND_ASK="y"
 
 source_cluster
 
@@ -55,7 +56,8 @@ ask PREPARE "What commands to run before running anything"
 ask PREPARE_CONFIGURE "What commands to run before running anything"
 ask PREPARE_MAKE "What commands to run before running make"
 ask PREPARE_RUN "What commands to run before running TCLB"
-ask RUN_COMMAND "What command to use to run MPI application (runmpi|srun|aprun|singularity exec|singularity exec --nv)"
+ask RUN_COMMAND "What command to use to run MPI application (runmpi|srun|aprun)"
+ask SINGULARITY_COMMAND "What command to use to run singularity container (singularity exec path_to_image.sif |singularity exec --nv path_to_image.sif)"
 
 save_conf
 
