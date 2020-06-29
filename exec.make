@@ -7,7 +7,6 @@ source $PP/conf.ini
 # cd $TCLB
 
 
-
 if test "$RUN_SINGULARITY" == "y"
 then
     echo "running make within singularity"

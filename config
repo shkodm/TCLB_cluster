@@ -27,10 +27,10 @@ TCLB_DEF="$(pwd)"
 CONFOPT_DEF="--disable-cuda"
 RHOME_DEF=$(R RHOME 2>/dev/null)
 RHOME_ASK="fix"
-RUN_GPU_ASK="yn"
-RUN_GPU_DEF="y"
 RUN_SINGULARITY_ASK="yn"
 RUN_SINGULARITY_DEF="y"
+RUN_GPU_ASK="yn"
+RUN_GPU_DEF="y"
 MODULES_BASE_DEF="purge"
 PREPARE_ASK="no"
 PREPARE_CONFIGURE_ASK="no"
@@ -41,8 +41,8 @@ source_cluster
 
 ask GRANT "What is your grant name"
 ask TCLB "What is the path to TCLB" path
-ask RUN_GPU "Do you want to run on GPU"
 ask RUN_SINGULARITY "Do you want to run in Singularity container"
+ask RUN_GPU "Do you want to run on GPU"
 ask CONFOPT "Provide ./configure options you want to use (please use single ' for quotes)"
 ask RHOME "What is the path to R (without the bin/ part)"
 ask DEBUGQ "What is the name of the debug queue/partition"
