@@ -98,7 +98,7 @@ echo "###### Loading modules #######"
 	mod_add=false
 	source $PP/mods.ini RUN
 echo "###### --------------- #######"
-	echo -e "Executing command:\n$SINGULARITY_COMMAND $RUN_COMMAND $SOLVER $CASE\n"
+	echo -e "Executing command:\n$RUN_COMMAND $SINGULARITY_COMMAND $SOLVER $CASE\n"
 echo "###### --------------- #######"	
 echo ""
 	trap "say Errored" ERR
@@ -106,6 +106,6 @@ echo ""
 	trap "say Killed" KILL
 	set -e
 	say Started
-	$SINGULARITY_COMMAND $RUN_COMMAND $SOLVER $CASE
+	$RUN_COMMAND $SINGULARITY_COMMAND $SOLVER $CASE
 	say Finished
 EOF

@@ -34,15 +34,29 @@ function RHOME_CHECK {
     return 0
 }
 
+
+function ARE_U_ON_RYSY {
+	if hostname | grep "rysy\.icm\.edu\.pl" >/dev/null
+	then
+		return 0
+	fi
+    return 1
+}
+
 function MODULES_CHECK {
-    for i in $@
-    do
-            if [ -z "$(module av $i 2>&1)" ]
-            then
-                    echo there is no module $i
-                    return 1;
-            fi
-    done
+	if ! ARE_U_ON_RYSY
+	then
+		for i in $@
+		do
+				if [ -z "$(module av $i 2>&1)" ]
+				then
+						echo there is no module $i
+						return 1;
+				fi
+		done
+	else
+		echo "On RYSY modules shall be checked on computational node"  # todo
+	fi
     return 0;
 }
 

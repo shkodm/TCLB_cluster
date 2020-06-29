@@ -5,7 +5,7 @@ echo -e "Singularity container with TCLB can be used here instead of modules. \n
 
 
 #https://cloud.sylabs.io/library/mdzik/default/tclb
-echo -e "Make sure that you have downloaded the 'singularity TCLB image' before you run the job."
+echo -e "Make sure that you have downloaded the 'singularity TCLB image' if you want to use the container."
 echo -e "TIP: If not, call '\$ singularity pull --arch amd64 library://mdzik/default/tclb:latest' from a computational node.'"
 echo -e "Please, keep the github repo and container in $HOME/TCLB/ \n\n"
 
@@ -27,23 +27,51 @@ fix MODULES_BASE ""
 
 # there isn't much traffic on rysy, use default qos
 fix MAINQ "" # "normal" is default
-fix DEBUGQ "" # "short" is not quick ;p
+# fix DEBUGQ "short" # QOSMaxWallDurationPerJobLimit for "--qos=short" is --time=00:15:00
+fix DEBUGQ "" # QOSMaxWallDurationPerJobLimit for "--qos=short" is --time=00:15:00
 
 function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
-	y)
-		echo -e "[y] has been choosen."
-		def SINGULARITY_COMMAND "singularity exec --nv $HOME/TCLB/tclb_latest.sif"
-		def RUN_COMMAND "mpirun"
-		def CONFOPT "--enable-double --enable-cpp11 --with-cuda-arch=sm_60"
+	y)	
+		echo -e "[y] has been choosen RUN_GPU." 
+		if test "$RUN_SINGULARITY" == "y"
+		then
+			echo -e "[y] has been choosen RUN_SINGULARITY."
+			def SINGULARITY_COMMAND "singularity exec --nv $HOME/TCLB/tclb_latest.sif"
+		fi
+		# def RUN_COMMAND "mpirun"
+		def RUN_COMMAND "srun"
 		def MAX_TASKS_PER_NODE 4
 		def MAX_TASKS_PER_NODE_FOR_COMPILATION 24
 		def CORES_PER_TASK_FULL 1
 		def MEMORY_PER_CORE 5
+		# def MODULES_RUN "common/R/3.5.0 common/compilers/gcc/8.3.1 common/mpi/openmpi/3.1.5_gnu-8.3 gpu/cuda/10.0"
+		def MODULES_RUN "common/R/3.5.0  common/mpi/openmpi/3.1.5_gnu-8.3 gpu/cuda/10.0"
+		def CONFOPT "--enable-cpp11 --with-cuda-arch=sm_60"
 		;;
+	# case ${RUN_GPU}+${RUN_SINGULARITY} in
+	# *+y|y+*)
+	# 	echo -e "[y] has been choosen for both RUN_GPU and RUN_SINGULARITY."
+	# 	def SINGULARITY_COMMAND "singularity exec --nv $HOME/TCLB/tclb_latest.sif"
+	# 	# def RUN_COMMAND "mpirun"
+	# 	def RUN_COMMAND "srun"
+	# 	def CONFOPT "--enable-double --enable-cpp11 --with-cuda-arch=sm_60"
+	# 	def MAX_TASKS_PER_NODE 4
+	# 	def MAX_TASKS_PER_NODE_FOR_COMPILATION 24
+	# 	def CORES_PER_TASK_FULL 1
+	# 	def MEMORY_PER_CORE 5
+	# 	;;
 	*)
 		echo "RUN_GPU should be y! Only GPU jobs shall run on RYSY"
-		return 1;
+		return 1;;
 	esac
 	return 0
 }
+
+
+# MODULES_ADD_DEF="plgrid/apps/r/3.4.4 plgrid/apps/cuda"  
+# Prometheus's module apps/r loads apps/cuda/9.0 as dependency. 
+# apps/r (with its dependencies) must be called first with $MODULES_ADD, then override (prepend path) with $MODULES_RUN
+
+# MODULES_ADD_ASK="no"
+MODULES_RUN_ASK="no"
