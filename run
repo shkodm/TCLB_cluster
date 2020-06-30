@@ -78,9 +78,9 @@ else
     echo -e	"	MEMORY_PER_CORE is not declared, default value will be used."
 fi
 
-sbatch $(arg -A $GRANT) $(arg -p $MAINQ) "$@" <<EOF
+sbatch $(arg --account $GRANT) $(arg --partition $MAIN_PARTITION) $(arg --qos $MAIN_QOS) "$@" <<EOF
 #!/bin/bash -l
-#SBATCH -J $NAME
+#SBATCH --job-name=$NAME
 #SBATCH --nodes=$NODES 
 #SBATCH --ntasks=$TASKS
 #SBATCH --cpus-per-task=$CORES_PER_TASK
@@ -88,11 +88,12 @@ sbatch $(arg -A $GRANT) $(arg -p $MAINQ) "$@" <<EOF
 #SBATCH --time=01:00:00 
 $MEM_PER_CORE_HEADER
 $GPU_HEADER
- 
 
-     cd \$SLURM_SUBMIT_DIR 
-echo "###### Nodes:          #######"
-     srun /bin/hostname
+ulimit -l unlimited
+
+    cd \$SLURM_SUBMIT_DIR 
+echo"###### Nodes:          #######"
+    srun /bin/hostname
 echo "###### Loading modules #######"
 	source $PP/conf.ini
 	mod_add=false

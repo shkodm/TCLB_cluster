@@ -20,15 +20,16 @@ echo -e "Please, keep the github repo and container in $HOME/TCLB/ \n\n"
 
 
 # All jobs are run inside singularity container, thus no modules need to be loaded.
-fix MODULES_ADD ""  
 fix MODULES_ADD ""
 fix MODULES_RUN ""
 fix MODULES_BASE ""
 
-# there isn't much traffic on rysy, use default qos
-fix MAINQ "" # "normal" is default
-# fix DEBUGQ "short" # QOSMaxWallDurationPerJobLimit for "--qos=short" is --time=00:15:00
-fix DEBUGQ "" # QOSMaxWallDurationPerJobLimit for "--qos=short" is --time=00:15:00
+# there isn't much traffic on rysy, may use default qos
+# there are no partitions on rysy --> use qos
+DEBUG_PARTITION_ASK="no"
+MAIN_PARTITION_ASK="no"
+fix MAIN_QOS "normal" # "normal" is default
+fix DEBUG_QOS "short" # QOSMaxWallDurationPerJobLimit for "--qos=short" is --time=00:15:00
 
 function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
@@ -42,15 +43,17 @@ function RUN_GPU_CHECK {
 		else
 			echo -e "[n] has been choosen RUN_SINGULARITY."
 			echo -e "[y] has been choosen RUN_GPU." 
-			def MODULES_RUN "common/R/3.5.0  common/mpi/openmpi/3.1.5_gnu-8.3 gpu/cuda/10.0"
+			SINGULARITY_COMMAND_ASK="no"
+			# def MODULES_RUN "common/R/3.5.0  common/mpi/openmpi/3.1.5_gnu-4.8 gpu/cuda/10.0"
+			def MODULES_RUN "common/R/3.5.0 common/compilers/gcc/8.3.1 common/mpi/openmpi/3.1.5_gnu-8.3 gpu/cuda/10.0"
 		fi
-		# def MODULES_RUN "common/R/3.5.0 common/compilers/gcc/8.3.1 common/mpi/openmpi/3.1.5_gnu-8.3 gpu/cuda/10.0"
+		
 		
 		def CONFOPT "--enable-cpp11 --with-cuda-arch=sm_60"
 		# def RUN_COMMAND "mpirun"
 		def RUN_COMMAND "srun"
 		def MAX_TASKS_PER_NODE 4
-		def MAX_TASKS_PER_NODE_FOR_COMPILATION 24
+		def MAX_TASKS_PER_NODE_FOR_COMPILATION 30
 		def CORES_PER_TASK_FULL 1
 		def MEMORY_PER_CORE 5
 

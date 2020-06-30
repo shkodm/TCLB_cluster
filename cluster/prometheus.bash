@@ -3,8 +3,8 @@
 echo "You are on the Prometheus cluster"
 
 CONFOPT_DEF=""
-DEBUGQ_DEF="plgrid-testing"
-DEBUGQ_ASK="no"
+DEBUG_PARTITION_DEF="plgrid-testing"
+DEBUG_PARTITION_ASK="no"
 RUN_COMMAND_DEF="mpirun"
 RUN_COMMAND_ASK="no"
 MODULES_BASE_ASK="no"
@@ -18,7 +18,7 @@ MODULES_BASE_ASK="no"
 function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
 	y)
-		MAINQ_DEF="plgrid-gpu"
+		MAIN_PARTITION_DEF="plgrid-gpu"
 		MODULES_RUN_DEF="plgrid/apps/r/3.4.4 plgrid/tools/openmpi/3.0.0-gcc-4.9.2 plgrid/apps/cuda/9.0"
 		CONFOPT_DEF="--with-cuda-arch=sm_30"
 		MAX_TASKS_PER_NODE_DEF=2
@@ -31,7 +31,7 @@ function RUN_GPU_CHECK {
 		MEMORY_PER_CORE_ASK="no"
 		;;
 	n)
-		MAINQ_DEF="plgrid"
+		MAIN_PARTITION_DEF="plgrid"
 		MODULES_RUN_DEF="plgrid/tools/openmpi/2.1.1-gcc-6.4.0"
 		CONFOPT_DEF="--disable-cuda"
 		MAX_TASKS_PER_NODE_DEF=12
@@ -49,7 +49,7 @@ function RUN_GPU_CHECK {
 	esac
 	return 0
 }
-MAINQ_ASK="no"
+MAIN_PARTITION_ASK="no"
 
 MODULES_ADD_DEF="plgrid/apps/r/3.4.4 plgrid/apps/cuda"  
 # Prometheus's module apps/r loads apps/cuda/9.0 as dependency. 
