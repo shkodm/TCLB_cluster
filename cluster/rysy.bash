@@ -44,32 +44,16 @@ function RUN_GPU_CHECK {
 			echo -e "[n] has been choosen RUN_SINGULARITY."
 			echo -e "[y] has been choosen RUN_GPU." 
 			SINGULARITY_COMMAND_ASK="no"
-			# def MODULES_RUN "common/R/3.5.0  common/mpi/openmpi/3.1.5_gnu-4.8 gpu/cuda/10.0"
-			def MODULES_RUN "common/R/3.5.0 common/compilers/gcc/8.3.1 common/mpi/openmpi/3.1.5_gnu-8.3 gpu/cuda/10.0"
+			def MODULES_RUN "common/R/3.5.0  common/mpi/openmpi/3.1.5_gnu-4.8 gpu/cuda/10.0"
+			# def MODULES_RUN "common/R/3.5.0 common/compilers/gcc/8.3.1 common/mpi/openmpi/3.1.5_gnu-8.3 gpu/cuda/10.0"
 		fi
-		
-		
 		def CONFOPT "--enable-cpp11 --with-cuda-arch=sm_60"
-		# def RUN_COMMAND "mpirun"
 		def RUN_COMMAND "srun"
 		def MAX_TASKS_PER_NODE 4
 		def MAX_TASKS_PER_NODE_FOR_COMPILATION 30
 		def CORES_PER_TASK_FULL 1
 		def MEMORY_PER_CORE 5
-
 		;;
-	# case ${RUN_GPU}+${RUN_SINGULARITY} in
-	# *+y|y+*)
-	# 	echo -e "[y] has been choosen for both RUN_GPU and RUN_SINGULARITY."
-	# 	def SINGULARITY_COMMAND "singularity exec --nv $HOME/TCLB/tclb_latest.sif"
-	# 	# def RUN_COMMAND "mpirun"
-	# 	def RUN_COMMAND "srun"
-	# 	def CONFOPT "--enable-double --enable-cpp11 --with-cuda-arch=sm_60"
-	# 	def MAX_TASKS_PER_NODE 4
-	# 	def MAX_TASKS_PER_NODE_FOR_COMPILATION 24
-	# 	def CORES_PER_TASK_FULL 1
-	# 	def MEMORY_PER_CORE 5
-	# 	;;
 	*)
 		echo "RUN_GPU should be y! Only GPU jobs shall run on RYSY"
 		return 1;;
@@ -78,9 +62,6 @@ function RUN_GPU_CHECK {
 }
 
 
-# MODULES_ADD_DEF="plgrid/apps/r/3.4.4 plgrid/apps/cuda"  
-# Prometheus's module apps/r loads apps/cuda/9.0 as dependency. 
-# apps/r (with its dependencies) must be called first with $MODULES_ADD, then override (prepend path) with $MODULES_RUN
-
-# MODULES_ADD_ASK="no"
+# some modules (with unwanted dependencies) must be called first with $MODULES_ADD, then override (prepend path) with $MODULES_RUN
+MODULES_ADD_ASK="no"
 MODULES_RUN_ASK="no"
