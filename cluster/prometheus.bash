@@ -1,14 +1,17 @@
-# .*\.pro\.cyfronet\.pl
+# .*\.prometheus\.cyfronet\.pl
 
 echo "You are on the Prometheus cluster"
 
 CONFOPT_DEF=""
 DEBUG_PARTITION_DEF="plgrid-testing"
 DEBUG_PARTITION_ASK="no"
+DEBUG_QOS_ASK="no"
+MAIN_QOS_ASK="no"
 RUN_COMMAND_DEF="mpirun"
 RUN_COMMAND_ASK="no"
 MODULES_BASE_ASK="no"
-
+RUN_SINGULARITY_ASK="no"
+SINGULARITY_COMMAND_ASK="no"
 # Prometheus - hardware info:
 # Processors per node:  2x Intel Xeon E5-2680v3 
 # Cores per node 24
