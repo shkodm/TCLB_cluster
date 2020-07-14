@@ -32,6 +32,7 @@ RUN_SINGULARITY_DEF="n"
 RUN_GPU_ASK="yn"
 RUN_GPU_DEF="y"
 MODULES_BASE_DEF="purge"
+MODULES_CHECK_AVAILABILITY_ASK="no"
 PREPARE_ASK="no"
 PREPARE_CONFIGURE_ASK="no"
 PREPARE_MAKE_ASK="no"
@@ -56,6 +57,7 @@ ask MEMORY_PER_CORE "How much memory (GB) per core shall be declared (reserved)"
 ask MODULES_BASE "What modules to load ('-' for unload) for running/compiling TCLB"
 ask MODULES_ADD  "What additional modules to load for compilation"
 ask MODULES_RUN  "What modules to load ('-' for unload) for running TCLB"
+ask MODULES_CHECK_AVAILABILITY "Shall check availability of the modules on the cluster?"
 ask PREPARE "What commands to run before running anything"
 ask PREPARE_CONFIGURE "What commands to run before running anything"
 ask PREPARE_MAKE "What commands to run before running make"
@@ -138,25 +140,12 @@ EOF
 
 if ask_no "Do you want to install needed R packages now?"
 then
-	if ARE_U_ON_RYSY
-	then
-		echo "salloc $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00  $PP/exec.install skipssl rdep"
-		salloc $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00  $PP/exec.install skipssl rdep
-	else
-		echo "salloc $(arg --partition $DEBUG_PARTITION) --ntasks=1 $PP/exec.install skipssl rdep"
-		salloc $(arg --partition $DEBUG_PARTITION) --ntasks=1 $PP/exec.install skipssl rdep
-	fi
+	echo "salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00  $PP/exec.install skipssl rdep"
+		  salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00  $PP/exec.install skipssl rdep
 fi
 
-
 if ask_yes "Do you want to run ./configure now?"
-then	
-	if ARE_U_ON_RYSY
-	then
-		echo "salloc $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00 $PP/exec.configure $CONFOPT"
-		salloc $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00 $PP/exec.configure $CONFOPT
-	else
-		echo "salloc $(arg --partition $DEBUG_PARTITION) --ntasks=1 $PP/exec.configure $CONFOPT"
-		salloc $(arg --partition $DEBUG_PARTITION) --ntasks=1 $PP/exec.configure $CONFOPT
-	fi
+then
+	echo "salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00 $PP/exec.configure $CONFOPT"
+		  salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00 $PP/exec.configure $CONFOPT	
 fi

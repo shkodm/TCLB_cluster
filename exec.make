@@ -2,10 +2,6 @@
 
 PP=$(dirname $0)
 source $PP/conf.ini
-# mod_add=true
-# source $PP/mods.ini MAKE
-# cd $TCLB
-
 
 if test "$RUN_SINGULARITY" == "y"
 then
@@ -20,8 +16,8 @@ srun /bin/bash -l << EOF
         hostname
     echo "###### Loading modules #######"
         source $PP/conf.ini
-        mod_add=false
-        source $PP/mods.ini CONFIGURE
+        mod_add=true
+        source $PP/mods.ini MAKE
     echo "###### --------------- #######"
         echo -e "Executing command:\n make $@"
     echo "###### --------------- #######"	

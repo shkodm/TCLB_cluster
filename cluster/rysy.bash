@@ -65,3 +65,4 @@ function RUN_GPU_CHECK {
 # some modules (with unwanted dependencies) must be called first with $MODULES_ADD, then override (prepend path) with $MODULES_RUN
 MODULES_ADD_ASK="no"
 MODULES_RUN_ASK="no"
+MODULES_CHECK_AVAILABILITY="no"

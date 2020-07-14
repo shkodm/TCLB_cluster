@@ -34,18 +34,11 @@ function RHOME_CHECK {
     return 0
 }
 
-
-function ARE_U_ON_RYSY {
-	if hostname | grep "rysy\.icm\.edu\.pl" >/dev/null
-	then
-		return 0
-	fi
-    return 1
-}
-
 function MODULES_CHECK {
-	if ! ARE_U_ON_RYSY
+	# "On RYSY modules shall be checked on computational node"  # 
+	if test "$MODULES_CHECK_AVAILABILITY" == "yes"
 	then
+		echo "Checking availability of the modules..."
 		for i in $@
 		do
 				if [ -z "$(module av $i 2>&1)" ]
@@ -55,10 +48,11 @@ function MODULES_CHECK {
 				fi
 		done
 	else
-		echo "On RYSY modules shall be checked on computational node"  # todo
+		echo "Availability of the modules check skipped..."
 	fi
     return 0;
 }
+
 
 function MODULES_RUN_CHECK {
 	MODULES_CHECK $MODULES_RUN

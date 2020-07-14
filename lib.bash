@@ -139,7 +139,7 @@ function ask_yn {
 	n|N|no|NO) RET=n;;
 	"") RET=$DEF;;
 	*)
-		echo "Say yes of no" >&2
+		echo "Say yes or no" >&2
 		exit -1
 	esac
 	if test "$RET" == "y"

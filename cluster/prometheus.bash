@@ -12,6 +12,7 @@ RUN_COMMAND_ASK="no"
 MODULES_BASE_ASK="no"
 RUN_SINGULARITY_ASK="no"
 SINGULARITY_COMMAND_ASK="no"
+
 # Prometheus - hardware info:
 # Processors per node:  2x Intel Xeon E5-2680v3 
 # Cores per node 24
@@ -60,3 +61,4 @@ MODULES_ADD_DEF="plgrid/apps/r/3.4.4 plgrid/apps/cuda"
 
 MODULES_ADD_ASK="no"
 MODULES_RUN_ASK="no"
+MODULES_CHECK_AVAILABILITY="yes"

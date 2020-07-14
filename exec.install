@@ -10,7 +10,7 @@ echo "###### Nodes:          #######"
     hostname
 echo "###### Loading modules #######"
 	source $PP/conf.ini
-	mod_add=false
+	mod_add=true
 	source $PP/mods.ini CONFIGURE
 echo "###### --------------- #######"
 	echo -e "Executing command:\n $TCLB/tools/install.sh $@"
