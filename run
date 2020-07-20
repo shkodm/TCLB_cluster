@@ -93,7 +93,7 @@ ulimit -l unlimited
 
     cd \$SLURM_SUBMIT_DIR 
 echo"###### Nodes:          #######"
-    srun /bin/hostname
+    srun hostname
 echo "###### Loading modules #######"
 	source $PP/conf.ini
 	mod_add=false
