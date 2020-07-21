@@ -51,6 +51,7 @@ else
 	CORES_PER_TASK=1
 fi
 
+# REMAINDER=$[($NODES*$TASKS_PER_NODE)%$TASKS]
 if [ $TASKS -ne $[$NODES*$TASKS_PER_NODE] ]
 then
 	echo Requested number of cores/gpus \($TASKS\) is not $NODES x $TASKS_PER_NODE
@@ -78,9 +79,9 @@ else
     echo -e	"	MEMORY_PER_CORE is not declared, default value will be used."
 fi
 
-sbatch $(arg -A $GRANT) $(arg -p $MAINQ) "$@" <<EOF
+sbatch $(arg --account $GRANT) $(arg --partition $MAIN_PARTITION) $(arg --qos $MAIN_QOS) "$@" <<EOF
 #!/bin/bash -l
-#SBATCH -J $NAME
+#SBATCH --job-name=$NAME
 #SBATCH --nodes=$NODES 
 #SBATCH --ntasks=$TASKS
 #SBATCH --cpus-per-task=$CORES_PER_TASK
@@ -88,17 +89,18 @@ sbatch $(arg -A $GRANT) $(arg -p $MAINQ) "$@" <<EOF
 #SBATCH --time=01:00:00 
 $MEM_PER_CORE_HEADER
 $GPU_HEADER
- 
 
-     cd \$SLURM_SUBMIT_DIR 
+ulimit -l unlimited
+
+    cd \$SLURM_SUBMIT_DIR 
 echo "###### Nodes:          #######"
-     srun /bin/hostname
+    srun hostname
 echo "###### Loading modules #######"
 	source $PP/conf.ini
 	mod_add=false
 	source $PP/mods.ini RUN
 echo "###### --------------- #######"
-	echo -e "Executing command:\n$SINGULARITY_COMMAND $RUN_COMMAND $SOLVER $CASE\n"
+	echo -e "Executing command:\n$RUN_COMMAND $SINGULARITY_COMMAND $SOLVER $CASE\n"
 echo "###### --------------- #######"	
 echo ""
 	trap "say Errored" ERR
@@ -106,6 +108,6 @@ echo ""
 	trap "say Killed" KILL
 	set -e
 	say Started
-	$SINGULARITY_COMMAND $RUN_COMMAND $SOLVER $CASE
+	$RUN_COMMAND $SINGULARITY_COMMAND $SOLVER $CASE
 	say Finished
 EOF

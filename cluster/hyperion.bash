@@ -3,8 +3,8 @@
 echo "You are on the Hyperion cluster"
 
 CONFOPT_DEF=""
-DEBUGQ_DEF="cpus"
-DEBUGQ_ASK="no"
+DEBUG_PARTITION_DEF="cpus"
+DEBUG_PARTITION_ASK="no"
 RUN_COMMAND_DEF="mpirun"
 RUN_COMMAND_ASK="no"
 MODULES_BASE_ASK="no"
@@ -12,7 +12,7 @@ MODULES_BASE_ASK="no"
 function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
 	y)
-		MAINQ_DEF="gpus"
+		MAIN_PARTITION_DEF="gpus"
 		MODULES_RUN_DEF="hyp/CUDA/10.1 hyp/mpi/openmpi/4.0.1"
 		CONFOPT_DEF="--with-cuda-arch=sm_30"
 		MAX_TASKS_PER_NODE_DEF=2
@@ -21,7 +21,7 @@ function RUN_GPU_CHECK {
 		CORES_PER_TASK_FULL_ASK="no"
 		;;
 	n)
-		MAINQ_DEF="cpus"
+		MAIN_PARTITION_DEF="cpus"
 		MODULES_RUN_DEF="hyp/mpi/openmpi/4.0."
 		CONFOPT_DEF="--disable-cuda"
 		MAX_TASKS_PER_NODE_DEF=32
@@ -35,7 +35,7 @@ function RUN_GPU_CHECK {
 	esac
 	return 0
 }
-MAINQ_ASK="no"
+MAIN_PARTITION_ASK="no"
 
 MODULES_ADD_DEF=""
 MODULES_ADD_ASK="no"

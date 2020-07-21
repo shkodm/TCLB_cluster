@@ -27,24 +27,29 @@ TCLB_DEF="$(pwd)"
 CONFOPT_DEF="--disable-cuda"
 RHOME_DEF=$(R RHOME 2>/dev/null)
 RHOME_ASK="fix"
+RUN_SINGULARITY_ASK="yn"
+RUN_SINGULARITY_DEF="n"
 RUN_GPU_ASK="yn"
 RUN_GPU_DEF="y"
 MODULES_BASE_DEF="purge"
+MODULES_CHECK_AVAILABILITY_ASK="no"
 PREPARE_ASK="no"
 PREPARE_CONFIGURE_ASK="no"
 PREPARE_MAKE_ASK="no"
 PREPARE_RUN_ASK="no"
-SINGULARITY_COMMAND_ASK="y"
 
 source_cluster
 
 ask GRANT "What is your grant name"
 ask TCLB "What is the path to TCLB" path
+ask RUN_SINGULARITY "Do you want to run in Singularity container"
 ask RUN_GPU "Do you want to run on GPU"
 ask CONFOPT "Provide ./configure options you want to use (please use single ' for quotes)"
 ask RHOME "What is the path to R (without the bin/ part)"
-ask DEBUGQ "What is the name of the debug queue/partition"
-ask MAINQ "What is the name of the main queue/partition to use"
+ask DEBUG_QOS "What is the name of the debug qos"
+ask MAIN_QOS "What is the name of the main qos to use"
+ask DEBUG_PARTITION "What is the name of the debug partition"
+ask MAIN_PARTITION "What is the name of the main partition to use"
 ask MAX_TASKS_PER_NODE "What is the maximal number of (mpi) processes/gpus per node"
 ask MAX_TASKS_PER_NODE_FOR_COMPILATION "What is the maximal number of (mpi) processes/gpus per node - for compilation"
 ask CORES_PER_TASK_FULL "How many cores per task (i.e. mpi processes)"
@@ -52,12 +57,13 @@ ask MEMORY_PER_CORE "How much memory (GB) per core shall be declared (reserved)"
 ask MODULES_BASE "What modules to load ('-' for unload) for running/compiling TCLB"
 ask MODULES_ADD  "What additional modules to load for compilation"
 ask MODULES_RUN  "What modules to load ('-' for unload) for running TCLB"
+ask MODULES_CHECK_AVAILABILITY "Shall check availability of the modules on the cluster?"
 ask PREPARE "What commands to run before running anything"
 ask PREPARE_CONFIGURE "What commands to run before running anything"
 ask PREPARE_MAKE "What commands to run before running make"
 ask PREPARE_RUN "What commands to run before running TCLB"
 ask RUN_COMMAND "What command to use to run MPI application (runmpi|srun|aprun)"
-ask SINGULARITY_COMMAND "What command to use to run singularity container (singularity exec path_to_image.sif |singularity exec --nv path_to_image.sif)"
+ask SINGULARITY_COMMAND "What command to use to run singularity container (singularity exec path_to_image.sif | singularity exec --nv path_to_image.sif)"
 
 save_conf
 
@@ -134,16 +140,12 @@ EOF
 
 if ask_no "Do you want to install needed R packages now?"
 then
-	salloc $(arg -p $DEBUGQ) --ntasks=1 $PP/exec.install skipssl rdep
+	echo "salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00  $PP/exec.install skipssl rdep"
+		  salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00  $PP/exec.install skipssl rdep
 fi
 
 if ask_yes "Do you want to run ./configure now?"
 then
-	
-	if hostname | grep "rysy\.icm\.edu\.pl" >/dev/null
-	then
-		salloc $(arg -A $GRANT) --ntasks=1 $PP/exec.configure $CONFOPT
-	else
-		salloc $(arg -p $DEBUGQ) --ntasks=1 $PP/exec.configure $CONFOPT
-	fi
+	echo "salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00 $PP/exec.configure $CONFOPT"
+		  salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00 $PP/exec.configure $CONFOPT	
 fi

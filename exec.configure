@@ -2,16 +2,29 @@
 
 PP=$(dirname $0)
 source $PP/conf.ini
-mod_add=true
-source $PP/mods.ini CONFIGURE
-cd $TCLB
 
-
-if hostname | grep "rysy\.icm\.edu\.pl" >/dev/null
+if test "$RUN_SINGULARITY" == "y"
 then
     srun $SINGULARITY_COMMAND make configure
     srun $SINGULARITY_COMMAND ./configure "$@"
 else
-    $RUN_COMMAND make configure
-    $RUN_COMMAND ./configure "$@"
+srun /bin/bash -l << EOF
+    echo "###### Nodes:          #######"
+        hostname
+    echo "###### Loading modules #######"
+        source $PP/conf.ini
+        mod_add=true
+        source $PP/mods.ini CONFIGURE
+    echo "###### --------------- #######"
+        echo -e "Executing command:\n make configure"
+        echo -e "Executing command:\n ./configure $@"
+    echo "###### --------------- #######"	
+    echo ""
+        set -e
+        say Started
+        cd $TCLB
+        make configure
+        $TCLB/configure $@
+        say Finished
+EOF
 fi

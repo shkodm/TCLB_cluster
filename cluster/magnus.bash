@@ -3,8 +3,8 @@
 echo "Running on Magnus."
 
 fix RUN_COMMAND "srun"
-fix DEBUGQ "debugq"
-fix MAINQ "workq"
+fix DEBUG_PARTITION "debugq"
+fix MAIN_PARTITION "workq"
 fix RUN_GPU "n"
 def MODULES_RUN "PrgEnv-gnu"
 fix MODULES_BASE "-PrgEnv-cray"
