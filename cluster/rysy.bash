@@ -48,7 +48,7 @@ function RUN_GPU_CHECK {
 			# def MODULES_RUN "common/R/3.5.0 common/compilers/gcc/8.3.1 common/mpi/openmpi/3.1.5_gnu-8.3 gpu/cuda/10.0"
 		fi
 		def CONFOPT "--enable-cpp11 --with-cuda-arch=sm_60"
-		def RUN_COMMAND "srun"
+		def RUN_COMMAND "mpirun"
 		def MAX_TASKS_PER_NODE 4
 		def MAX_TASKS_PER_NODE_FOR_COMPILATION 30
 		def CORES_PER_TASK_FULL 1
