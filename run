@@ -92,7 +92,7 @@ $GPU_HEADER
 ulimit -l unlimited
 
     cd \$SLURM_SUBMIT_DIR 
-echo"###### Nodes:          #######"
+echo "###### Nodes:          #######"
     srun hostname
 echo "###### Loading modules #######"
 	source $PP/conf.ini
