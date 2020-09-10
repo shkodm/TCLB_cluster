@@ -35,16 +35,24 @@ function RHOME_CHECK {
 }
 
 function MODULES_CHECK {
-    for i in $@
-    do
-            if [ -z "$(module av $i 2>&1)" ]
-            then
-                    echo there is no module $i
-                    return 1;
-            fi
-    done
+	# "On RYSY modules shall be checked on computational node"  # 
+	if test "$MODULES_CHECK_AVAILABILITY" == "yes"
+	then
+		echo "Checking availability of the modules..."
+		for i in $@
+		do
+				if [ -z "$(module av $i 2>&1)" ]
+				then
+						echo there is no module $i
+						return 1;
+				fi
+		done
+	else
+		echo "Availability of the modules check skipped..."
+	fi
     return 0;
 }
+
 
 function MODULES_RUN_CHECK {
 	MODULES_CHECK $MODULES_RUN

@@ -2,8 +2,23 @@
 
 PP=$(dirname $0)
 source $PP/conf.ini
-mod_add=true
-source $PP/mods.ini CONFIGURE
-cd $TCLB
 
-$RUN_COMMAND $TCLB/tools/install.sh $@
+# $RUN_COMMAND /bin/bash -l << EOF
+
+srun /bin/bash -l << EOF
+echo "###### Nodes:          #######"
+    hostname
+echo "###### Loading modules #######"
+	source $PP/conf.ini
+	mod_add=true
+	source $PP/mods.ini CONFIGURE
+echo "###### --------------- #######"
+	echo -e "Executing command:\n $TCLB/tools/install.sh $@"
+echo "###### --------------- #######"	
+echo ""
+	set -e
+	say Started
+    cd $TCLB
+	$TCLB/tools/install.sh $@
+	say Finished
+EOF
