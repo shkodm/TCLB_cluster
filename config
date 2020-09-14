@@ -138,6 +138,16 @@ $PREPARE
 
 EOF
 
+
+source engine/slurm.bash
+
+BATCH=true
+q_queue $DEBUG_PARTITION
+q_grant $GRANT
+q_qos $DEBUG_QOS
+q_walltime 00:15:00
+exit 0
+
 if ask_no "Do you want to install needed R packages now?"
 then
 	echo "salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00  $PP/exec.install --skipssl rdep"

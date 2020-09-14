@@ -1,3 +1,5 @@
+BATCH=false
+
 function q_option {
 	if $BATCH
 	then
@@ -12,10 +14,10 @@ function q_name {
 }
 
 function q_units { 
-	N=$1 # Nodes
-	RPN=$2 # MPI ranks per node
-	CPR=$3 # CPUs per rank
-	GPR=$4 # GPUs per rank
+	N="$1" # Nodes
+	RPN="$2" # MPI ranks per node
+	CPR="$3" # CPUs per rank
+	GPR="$4" # GPUs per rank
 	q_option "--nodes=$N"
 	q_option "--ntasks=$[$RPN * $N]"
 	q_option "--cpus-per-task=$CPR"
@@ -30,8 +32,12 @@ function q_walltime {
 	test -z "$1" || q_option "--time=$1"
 }
 
+function q_qos {
+	test -z "$1" || q_option "--qos=$1"
+}
+
 function q_grant {
-	test -z "$1" || q_option "-A=$1"
+	test -z "$1" || q_option "--account=$1"
 }
 
 function q_queue {
