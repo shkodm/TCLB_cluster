@@ -1,5 +1,9 @@
 BATCH=false
 
+function q_header {
+	echo "#!/bin/bash"
+}
+
 function q_option {
 	if $BATCH
 	then

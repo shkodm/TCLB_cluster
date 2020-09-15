@@ -34,15 +34,40 @@ function save_conf {
 	fi
 }
 		
-function source_cluster {
-	for i in $PP/cluster/*.bash
+function find_cluster {
+	for i in $(cd $PP/cluster/; ls *.bash)
 	do
-		hn=$(head -n 1 $i | sed 's/^ *# *//')
+		hn=$(head -n 1 $PP/cluster/$i | sed 's/^ *# *//')
 		if hostname | grep "$hn" >/dev/null
 		then
-			source $i
+			echo $i | sed 's/.bash$//'
 		fi
 	done
+}
+
+function source_cluster {
+	if test -z "$CLUSTER"
+	then
+		true	
+	elif test -f "$PP/cluster/$CLUSTER.bash"
+	then
+		source "$PP/cluster/$CLUSTER.bash"
+	else
+		echo "Cluster defaults '$CLUSTER' not found in cluster/:"
+		(cd $PP/cluster/; ls)
+		exit 3;
+	fi
+}
+
+function source_engine {
+	if test -f "$PP/engine/$ENGINE.bash"
+	then
+		source "$PP/engine/$ENGINE.bash"
+	else
+		echo "Engine '$ENGINE' not found in engine/:"
+		(cd $PP/engine/; ls)
+		exit 3;
+	fi
 }
 
 function : {
@@ -66,18 +91,15 @@ function ask {
 	VAL="$(: $VAR)"
 	ASK="$(: $VAR ASK)"
 	DEF="$(: $VAR DEF)"
+	OLDDEF="$(: $VAR OLDDEF)"
 	CHECK="${VAR}_CHECK"
-	#echo "var:$VAR | val:$VAL | ask:$ASK | def:$DEF | check:$CHECK"
-	if $def || test -z "$VAL"
+#	echo "var:$VAR | val:$VAL | ask:$ASK | def:$DEF | check:$CHECK"
+	if $def || test "x$DEF" != "x$OLDDEF"
 	then
 		VAL="$DEF"
 	fi
-	if test -z "$ASK"
-	then
-		if ! test -z "$VAL"
-		then
-			O=" [$VAL]"
-		fi
+	case "$ASK-$advanced" in
+	-*|advanced-true)
 		if $agree
 		then
 			echo "$COMM: $VAL"
@@ -85,17 +107,19 @@ function ask {
 			read -e -p "$COMM: " -i "$VAL" NEW
 			VAL=$NEW
 		fi
-	elif test "$ASK" == "yn"
-	then
+		;;
+	yn-*|advancedyn-true)
 		if ask_yn "$DEF" "$COMM"
 		then
 			VAL="y"
 		else
 			VAL="n"
 		fi
-	else
+		;;
+	*)
 		VAL="$DEF"
-	fi
+		;;
+	esac
 	eval "$VAR=\"$VAL\""
 	if test "x$(type -t "$CHECK")" == "xfunction"
 	then
@@ -107,7 +131,8 @@ function ask {
 			fi
 		fi
 	fi
-	echo "$VAR=\"$VAL\"" >>$PP/new.conf.ini
+	echo "${VAR}=\"${VAL}\"" >>$PP/new.conf.ini
+	echo "${VAR}_OLDDEF=\"${DEF}\"" >>$PP/new.conf.ini
 }
 
 function defgrant {
@@ -158,8 +183,20 @@ function ask_no {
 }
 
 function def {
-	eval "${1}_DEF=\"$2\""
-	eval "${1}_ASK=\"\""
+	if test "$(: ${1} ASK)" != "fix"
+	then
+		eval "${1}_DEF=\"$2\""
+		eval "${1}_ASK=\"$3\""
+	fi
+}
+
+function adv {
+	if test "$(: ${1} ASK)" != "fix"
+	then
+#		echo "Setting $1 to advance with default $2"
+		eval "${1}_DEF=\"$2\""
+		eval "${1}_ASK=\"advanced$3\""
+	fi
 }
 
 function fix {
@@ -189,6 +226,14 @@ function arg {
 	if ! test -z "$2"
 	then
 		echo "$1" "$2"
+	fi
+}
+
+function check_integer {
+	if ! test "$1" -eq "$1" 2>/dev/null
+	then
+		echo "'$1' not an integer"
+		exit 2
 	fi
 }
 	

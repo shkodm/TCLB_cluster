@@ -1,45 +1,81 @@
 #!/bin/bash
 
-# set -e
+set -e
 
 PP=$(dirname $0)
 
 source $PP/lib.bash
 source $PP/checks.bash
+
+source_conf
+ask_init
+
+def GRANT "$(defgrant)"
+def TCLB "$(pwd)"
+def CONFOPT "--disable-cuda"
+adv RHOME $(R RHOME 2>/dev/null)
+def RUN_SINGULARITY "n" "yn"
+def RUN_GPU "y" "yn"
+function RUN_GPU_CHECK {
+	case "$RUN_GPU" in
+	n) def CONFOPT "--disable-cuda" ;;
+	y) def CONFOPT "--with-cuda-arch=sm_30" ;;
+	esac
+}
+def MODULES_BASE "purge"
+adv RUN_SINGULARITY "n" "yn"
+adv DEBUG_QOS ""
+adv MAIN_QOS ""
+adv CORES_PER_TASK_FULL "1"
+adv MEMORY_PER_CORE ""
+adv MODULES_ADD  ""
+adv MODULES_RUN  ""
+adv MODULES_CHECK_AVAILABILITY "y" "yn"
+adv PREPARE ""
+adv PREPARE_CONFIGURE ""
+adv PREPARE_MAKE ""
+adv PREPARE_RUN ""
+adv RUN_COMMAND "runmpi"
+adv SINGULARITY_COMMAND ""
+def ENGINE slurm
+def MAX_TASKS_PER_NODE 1
+def MAX_TASKS_PER_NODE_FOR_COMPILATION 1
+
+function MAX_TASKS_PER_NODE_CHECK {
+	check_integer "$1"
+}
+function MAX_TASKS_PER_NODE_FOR_COMPILATION_CHECK {
+	check_integer "$1"
+}
+function CORES_PER_TASK_FULL_CHECK {
+	check_integer "$1"
+}
+
+
+adv CLUSTER "$(find_cluster)"
+
 while true
 do
 	case "$1" in
 		-h|--help) usage;;
 		-y|--yes) agree=true;;
 		-d|--default) def=true;;
+		--slurm) fix ENGINE "slurm" ;;
+		--pbs) fix ENGINE "pbs" ;;
+		--local) fix ENGINE "local" ;;
+		--gpu) fix RUN_GPU "y";;
+		--cpu) fix RUN_GPU "n";;
+		-c|--cluster) shift; fix CLUSTER "$1";;
+		-no-cluster) shift; fix CLUSTER "";;
 		*) break;;
 	esac
 	shift
 done
 
-source_conf
-ask_init
-
-# RUN_COMMAND="mpirun"
-RUN_COMMAND_ASK="y"
-GRANT_DEF="$(defgrant)"
-TCLB_DEF="$(pwd)"
-CONFOPT_DEF="--disable-cuda"
-RHOME_DEF=$(R RHOME 2>/dev/null)
-RHOME_ASK="fix"
-RUN_SINGULARITY_ASK="yn"
-RUN_SINGULARITY_DEF="n"
-RUN_GPU_ASK="yn"
-RUN_GPU_DEF="y"
-MODULES_BASE_DEF="purge"
-MODULES_CHECK_AVAILABILITY_ASK="no"
-PREPARE_ASK="no"
-PREPARE_CONFIGURE_ASK="no"
-PREPARE_MAKE_ASK="no"
-PREPARE_RUN_ASK="no"
-
+ask CLUSTER "What cluster defaults to load"
 source_cluster
-
+ask ENGINE "What scheduler are you using (slurm|pbs|local)"
+source_engine
 ask GRANT "What is your grant name"
 ask TCLB "What is the path to TCLB" path
 ask RUN_SINGULARITY "Do you want to run in Singularity container"
@@ -139,13 +175,17 @@ $PREPARE
 EOF
 
 
-source engine/slurm.bash
-
 BATCH=true
+q_header
 q_queue $DEBUG_PARTITION
 q_grant $GRANT
 q_qos $DEBUG_QOS
 q_walltime 00:15:00
+echo
+
+module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN
+
+
 exit 0
 
 if ask_no "Do you want to install needed R packages now?"
