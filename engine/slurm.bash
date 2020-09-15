@@ -14,7 +14,7 @@ function q_option {
 }
 
 function q_name {
-	test -z "$1" || q_option "-J $1"
+	test -z "$1" || q_option "--job-name=$1"
 }
 
 function q_units { 
@@ -45,7 +45,7 @@ function q_grant {
 }
 
 function q_queue {
-	test -z "$1" || q_option "-p=$1"
+	test -z "$1" || q_option "--partition=$1"
 }
 
 function q_batch {

@@ -40,7 +40,6 @@ adv SINGULARITY_COMMAND ""
 def ENGINE slurm
 def MAX_TASKS_PER_NODE 1
 def MAX_TASKS_PER_NODE_FOR_COMPILATION 1
-
 function MAX_TASKS_PER_NODE_CHECK {
 	check_integer "$1"
 }
@@ -50,6 +49,8 @@ function MAX_TASKS_PER_NODE_FOR_COMPILATION_CHECK {
 function CORES_PER_TASK_FULL_CHECK {
 	check_integer "$1"
 }
+def RUN_INSTALL_RDEP "y" "yn"
+def RUN_CONFIGURE "y" "yn"
 
 
 adv CLUSTER "$(find_cluster)"
@@ -101,6 +102,9 @@ ask PREPARE_RUN "What commands to run before running TCLB"
 ask RUN_COMMAND "What command to use to run MPI application (runmpi|srun|aprun)"
 ask SINGULARITY_COMMAND "What command to use to run singularity container (singularity exec path_to_image.sif | singularity exec --nv path_to_image.sif)"
 
+ask RUN_INSTALL_RDEP "Do you want to install needed R packages now?"
+ask RUN_CONFIGURE "Do you want to run ./configure now?"
+
 save_conf
 
 if ! test -z "$MODULES_RUN"
@@ -113,7 +117,7 @@ then
 	MODULES_ADD_LOAD="\$mod_add && quiet_run module load $MODULES_ADD"
 fi
 
-if ! test -z "$RHOME"
+if test -d "$RHOME"
 then
 	RHOME_LOAD="export PATH=\"$RHOME/bin:\$PATH\""
 fi
@@ -174,17 +178,53 @@ $PREPARE
 
 EOF
 
+SCRIPT=$(mktemp)
+function rm_script {
+	if test -f "$SCRIPT"
+	then
+		echo "Deleting script"
+		rm $SCRIPT
+	fi
+}
 
-BATCH=true
-q_header
-q_queue $DEBUG_PARTITION
-q_grant $GRANT
-q_qos $DEBUG_QOS
-q_walltime 00:15:00
+trap rm_script EXIT
+
+echo
+(
+	BATCH=true
+	q_header
+	q_name "TCLB:configure"
+	q_queue $DEBUG_PARTITION
+	q_grant $GRANT
+	q_qos $DEBUG_QOS
+	q_walltime 00:15:00
+	q_units 1 1 1 0
+
+	echo
+	module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN
+	echo
+	echo "cd $TCLB"
+	if test "$RUN_INSTALL_RDEP" == "y"
+	then
+		echo "./tools/install.sh rdep"
+	fi
+	if test "$RUN_CONFIGURE" == "y"
+	then
+		echo "make configure"
+		echo "./configure $CONFOPT"
+	fi
+) | tee $SCRIPT | sed -e 's/\(#.*\)$/\x1B[32m\1\x1B[0m/'
 echo
 
-module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN
-
+if ask_yes "Submit to queue?"
+then
+	cat $SCRIPT
+else
+	if ask_no "Run locally?"
+	then
+		bash $SCRIPT
+	fi
+fi
 
 exit 0
 
