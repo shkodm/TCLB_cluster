@@ -60,11 +60,16 @@ function source_cluster {
 }
 
 function source_engine {
-	if test -f "$PP/engine/$ENGINE.bash"
+	ENG="$1"
+	if test -z "$ENG"
 	then
-		source "$PP/engine/$ENGINE.bash"
+		ENG="$ENGINE_RUN"
+	fi
+	if test -f "$PP/engine/$ENG.bash"
+	then
+		source "$PP/engine/$ENG.bash"
 	else
-		echo "Engine '$ENGINE' not found in engine/:"
+		echo "Engine '$ENG' not found in engine/:"
 		(cd $PP/engine/; ls)
 		exit 3;
 	fi
@@ -183,7 +188,7 @@ function ask_no {
 }
 
 function def {
-	if test "$(: ${1} ASK)" != "fix"
+	if test "$(: ${1} ASK)" != "no"
 	then
 		eval "${1}_DEF=\"$2\""
 		eval "${1}_ASK=\"$3\""
@@ -191,7 +196,7 @@ function def {
 }
 
 function adv {
-	if test "$(: ${1} ASK)" != "fix"
+	if test "$(: ${1} ASK)" != "no"
 	then
 #		echo "Setting $1 to advance with default $2"
 		eval "${1}_DEF=\"$2\""
@@ -209,13 +214,13 @@ function module_list {
 	do
 		case "$i" in
 		-*)
-			echo "quiet_run module unload" ${i:1}
+			echo "module unload" ${i:1}
 			;;
 		purge)
-			echo "quiet_run module purge"
+			echo "module purge"
 			;;
 		*)
-			echo "quiet_run module load" $i
+			echo "module load" $i
 			;;
 		esac
 	done
@@ -236,4 +241,21 @@ function check_integer {
 		exit 2
 	fi
 }
+
+function display_scr {
+	echo
+	sed -E -e 's/$/\x1B[0m/' -e 's/^([^#][^#]*)/\x1B[93m\1/' -e 's/(#.*)$/\x1B[32m\1/' -e 's/(#SBATCH|#PBS) /\1 \x1B[92m/'
+	echo
+}
+
+#SCRIPT=$(mktemp)
+#function rm_script {
+#	if test -f "$SCRIPT"
+#	then
+#		echo "Deleting script"
+#		rm $SCRIPT
+#	fi
+#}
+#trap rm_script EXIT
+
 	

@@ -49,6 +49,14 @@ function q_queue {
 }
 
 function q_batch {
-	sbatch $1
+	if $ONLY_PRINT
+	then
+		display_scr
+	else
+		sbatch "$@"
+	fi
 }
 
+function q_wait {
+	cat
+}

@@ -4,7 +4,9 @@ echo
 echo "You are on the Prometheus cluster"
 echo
 
-fix ENGINE slurm
+adv ENGINE_CONF slurm
+adv ENGINE_MAKE slurm
+adv ENGINE_RUN  slurm
 def CONFOPT ""
 adv DEBUG_PARTITION "plgrid-testing"
 fix DEBUG_QOS ""
