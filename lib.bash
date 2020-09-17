@@ -60,6 +60,11 @@ function source_cluster {
 }
 
 function source_engine {
+	if test -z "$ONLY_PRINT"
+	then
+		ONLY_PRINT="true"
+	fi
+	BATCH=false
 	ENG="$1"
 	if test -z "$ENG"
 	then

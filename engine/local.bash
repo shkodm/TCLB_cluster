@@ -1,9 +1,3 @@
-BATCH=false
-if test -z "$ONLY_PRINT"
-then
-	ONLY_PRINT="true"
-fi
-
 function q_header {
 	echo "#!/bin/bash"
 }

@@ -1,5 +1,3 @@
-BATCH=false
-
 function q_header {
 	echo "#!/bin/bash"
 }
