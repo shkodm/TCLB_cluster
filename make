@@ -32,7 +32,7 @@ source_engine $ENGINE
 BATCH=true
 (
 	q_header
-	q_name "TCLB:make:$MODEL"
+	q_name "TCLB_make_$MODEL"
 	q_queue $DEBUG_PARTITION
 	q_grant $GRANT
 	q_qos $DEBUG_QOS

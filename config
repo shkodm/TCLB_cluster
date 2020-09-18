@@ -127,7 +127,7 @@ source_engine $ENGINE_CONF
 BATCH=true
 (
 	q_header
-	q_name "TCLB:configure"
+	q_name "TCLB_configure"
 	q_queue $DEBUG_PARTITION
 	q_grant $GRANT
 	q_qos $DEBUG_QOS
