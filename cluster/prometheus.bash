@@ -29,7 +29,7 @@ function RUN_GPU_CHECK {
 		def MODULES_RUN "plgrid/apps/r/3.4.4 plgrid/tools/openmpi/3.0.0-gcc-4.9.2 plgrid/apps/cuda/9.0"
 		def CONFOPT "--with-cuda-arch=sm_30"
 		adv MAX_TASKS_PER_NODE 2
-		adv MAX_TASKS_PER_NODE_FOR_COMPILATION 12
+		adv MAX_TASKS_PER_NODE_FOR_COMPILATION 24
 		adv CORES_PER_TASK_FULL 1
 		def MEMORY_PER_CORE 10
 		;;
