@@ -46,4 +46,11 @@ BATCH=true
 	echo
 	echo "cd $TCLB"
 	echo "make -j $MAX_TASKS_PER_NODE_FOR_COMPILATION" "$@"
-) | q_batch | q_wait
+) | {
+	if $ONLY_PRINT
+	then
+		display_scr
+	else
+		q_run_and_wait
+	fi
+}

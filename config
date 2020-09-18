@@ -37,12 +37,12 @@ adv PREPARE_MAKE ""
 adv PREPARE_RUN ""
 adv RUN_COMMAND "runmpi"
 adv SINGULARITY_COMMAND ""
-if command -v "sbatch"
+if command -v "sbatch" >/dev/null
 then
 	def ENGINE_CONF local
 	def ENGINE_MAKE local
 	def ENGINE_RUN  slurm
-elif command -v "qsub"
+elif command -v "qsub" >/dev/null
 then
 	def ENGINE_CONF local
 	def ENGINE_MAKE local
@@ -149,4 +149,11 @@ BATCH=true
 		echo "make configure"
 		echo "./configure $CONFOPT"
 	fi
-) | q_batch | q_wait
+) | {
+	if $ONLY_PRINT
+	then
+		display_scr
+	else
+		q_run_and_wait
+	fi
+}

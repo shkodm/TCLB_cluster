@@ -36,14 +36,10 @@ function q_queue {
 }
 
 function q_batch {
-	if $ONLY_PRINT
-	then
-		display_scr
-	else
-		bash "$@"
-	fi
+	bash "$@"
 }
 
-function q_wait {
-	cat
+function q_run_and_wait {
+	bash "$@"
 }
+
