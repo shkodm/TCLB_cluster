@@ -1,5 +1,6 @@
 function q_header {
 	echo "#!/bin/bash"
+	BATCH=true
 }
 
 function q_option {
@@ -50,6 +51,49 @@ function q_batch {
 	sbatch "$@"
 }
 
-function q_run_and_wait {
-	sbatch --wait "$@"
+function q_wait {
+	JOBID="$1"
+	test -z "$1" && exit -1
+	echo "Submitted job $JOBID to queue and waiting"
+	OUT="slurm-$JOBID.out"
+	RES=false
+	function ctrl_c {
+		agree="false"
+		echo; echo;
+		if ask_no "Do you want to kill job $JOBID ($STATE)? "
+		then
+			scancel "$JOBID"
+		fi
+		exit 2
+	}
+	trap ctrl_c INT
+	while sleep 5
+	do
+		STATE="$(sacct -j $JOBID -o 'state' --parsable2 --noheader | head -1)"
+		case "$STATE" in
+			RUNNING) update_log "$OUT";;
+			PENDING) ;;
+			CONFIGURING) ;;
+			FAILED) break ;;
+			COMPLETED) RES=true; break ;;
+			*) echo " unknown: '$STATE'"; break ;;
+		esac
+	done
+	update_log "$OUT"
+	$RES
+}
+
+function q_run {
+	if $ONLY_PRINT
+	then
+		cat $1 | display_scr
+	else
+		JOBID=$(sbatch --parsable "$@")
+		if $RUN_WAIT
+		then
+			q_wait $JOBID
+		else
+			echo "Submitted job $JOBID to queue"
+		fi
+	fi
 }

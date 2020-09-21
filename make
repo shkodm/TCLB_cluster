@@ -1,7 +1,9 @@
 #/bin/bash
 
+set -e
+
 function usage {
-	echo "p/make [--print] [--local] model"
+	echo "p/make [--print] [--local] [--no-wait] model"
 	exit 2
 }
 
@@ -13,23 +15,24 @@ source_conf
 
 ENGINE="$ENGINE_MAKE"
 ONLY_PRINT=false
-while ! test -z "$1"
+RUN_WAIT=true
+for arg
 do
-	case "$1" in
+	shift
+	case "$arg" in
 		-h|--help) usage;;
 		--slurm) ENGINE="slurm" ;;
 		--pbs) ENGINE="pbs" ;;
 		--local) ENGINE="local" ;;
 		--print) ONLY_PRINT=true;;
-		*) break;
+		--no-wait) RUN_WAIT=false;;
+		*) set -- "$@" "$arg";;
 	esac
-	shift
 done
 
 test -z "$1" && usage
 
 source_engine $ENGINE
-BATCH=true
 (
 	q_header
 	q_name "TCLB:make:$MODEL"
@@ -46,11 +49,6 @@ BATCH=true
 	echo
 	echo "cd $TCLB"
 	echo "make -j $MAX_TASKS_PER_NODE_FOR_COMPILATION" "$@"
-) | {
-	if $ONLY_PRINT
-	then
-		display_scr
-	else
-		q_run_and_wait
-	fi
-}
+) >tmp.job.scr
+
+q_run tmp.job.scr

@@ -8,7 +8,10 @@ source $PP/lib.bash
 source $PP/checks.bash
 
 source_conf
-ask_init
+
+# def -- set the default value of the setting
+# adv -- set the default value of the setting and mark it as "advanced" setting
+# fix -- set the value of the setting and fix it
 
 def GRANT "$(defgrant)"
 def TCLB "$(pwd)"
@@ -69,6 +72,7 @@ def RUN_CONFIGURE "y" "yn"
 adv CLUSTER "$(find_cluster)"
 
 ONLY_PRINT=false
+RUN_WAIT=true
 while ! test -z "$1"
 do
 	case "$1" in
@@ -83,11 +87,13 @@ do
 		-c|--cluster) shift; fix CLUSTER "$1";;
 		--no-cluster) shift; fix CLUSTER "";;
 		--print) ONLY_PRINT=true;;
+		--no-wait) RUN_WAIT=false;;
 		*) echo "Unknown option '$1'"; exit 2;;
 	esac
 	shift
 done
 
+ask_init
 ask CLUSTER "What cluster defaults to load"
 source_cluster
 ask ENGINE_CONF "What scheduler to use for configuration (slurm|pbs|local)"
@@ -117,43 +123,39 @@ ask PREPARE_MAKE "What commands to run before running make"
 ask PREPARE_RUN "What commands to run before running TCLB"
 ask RUN_COMMAND "What command to use to run MPI application (runmpi|srun|aprun)"
 ask SINGULARITY_COMMAND "What command to use to run singularity container (singularity exec path_to_image.sif | singularity exec --nv path_to_image.sif)"
-
 ask RUN_INSTALL_RDEP "Do you want to install needed R packages now?"
 ask RUN_CONFIGURE "Do you want to run ./configure now?"
-
 save_conf
 
 source_engine $ENGINE_CONF
-BATCH=true
-(
-	q_header
-	q_name "TCLB:configure"
-	q_queue $DEBUG_PARTITION
-	q_grant $GRANT
-	q_qos $DEBUG_QOS
-	q_walltime 00:15:00
-	q_units 1 1 1 0
 
-	echo
-	echo "set -e # exit on error"
-	echo
-	module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN
-	echo
-	echo "cd $TCLB"
-	if test "$RUN_INSTALL_RDEP" == "y"
-	then
-		echo "./tools/install.sh rdep"
-	fi
-	if test "$RUN_CONFIGURE" == "y"
-	then
-		echo "make configure"
-		echo "./configure $CONFOPT"
-	fi
-) | {
-	if $ONLY_PRINT
-	then
-		display_scr
-	else
-		q_run_and_wait
-	fi
-}
+if test "$RUN_INSTALL_RDEP" == "y" || test "$RUN_CONFIGURE" == "y"
+then
+	(
+		q_header
+		q_name "TCLB:configure"
+		q_queue $DEBUG_PARTITION
+		q_grant $GRANT
+		q_qos $DEBUG_QOS
+		q_walltime 00:15:00
+		q_units 1 1 1 0
+
+		echo
+		echo "set -e # exit on error"
+		echo
+		module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN
+		echo
+		echo "cd $TCLB"
+		if test "$RUN_INSTALL_RDEP" == "y"
+		then
+			echo "./tools/install.sh rdep"
+		fi
+		if test "$RUN_CONFIGURE" == "y"
+		then
+			echo "make configure"
+			echo "./configure $CONFOPT"
+		fi
+	) >tmp.job.scr
+
+	q_run tmp.job.scr
+fi

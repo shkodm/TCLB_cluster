@@ -1,43 +1,66 @@
 #!/bin/bash
 
+set -e
+
+function usage {
+	echo "p/run [--print] [--wait] model"
+	exit 2
+}
+
 PP=$(dirname $0)
-[ -f $PP/conf.ini ] || $PP/config
-[ -f $PP/conf.ini ] || exit -1
-. $PP/conf.ini	
+test -f $PP/conf.ini || $PP/config
+test -f $PP/conf.ini || exit -1
 . $PP/lib.bash
+source_conf
+
+ENGINE="$ENGINE_MAKE"
+ONLY_PRINT=false
+RUN_WAIT=false
+for arg
+do
+	shift
+	case "$arg" in
+		-h|--help) usage;;
+		--slurm) ENGINE="slurm" ;;
+		--pbs) ENGINE="pbs" ;;
+		--local) ENGINE="local" ;;
+		--print) ONLY_PRINT=true;;
+		--wait) RUN_WAIT=true;;
+		*) set -- "$@" "$arg";;
+	esac
+done
 
 MODEL=$1
-shift
-CASE=$1
-shift
-TASKS=$1
-shift
-
-if [ -z "$MODEL" ] || [ -z "$CASE" ]
+if test -z "$MODEL"
 then
-	echo Usage: ./run MODEL CASE.xml [cores]
-	exit -1
+	usage
 fi
-
-if [ ! -f "$CASE" ]
-then
-	echo No case file: $CASE
-	exit -1
-fi
-
 SOLVER=$TCLB/CLB/$MODEL/main
-
 if [ ! -f "$SOLVER" ]
 then
-	echo No such model: $MODEL
-	echo File not found: $SOLVER
-	exit -1
+	echo "Model '$MODEL' not found ('$SOLVER' doesn't exist)"
+	usage
 fi
+shift
 
+CASE=$1
+if test -z "$CASE"
+then
+	usage
+fi
+if [ ! -f "$CASE" ]
+then
+	echo "Case file '$CASE' doesn't exist"
+	usage
+fi
+shift
 
+TASKS=$1
 if [ -z "$TASKS" ]
 then
 	TASKS=1
+else
+	shift
 fi
 
 if [ $TASKS -gt $MAX_TASKS_PER_NODE ]
@@ -65,9 +88,10 @@ echo -e "Trying to run $CASE with $MODEL model on $TASKS (mpi)processes/gpus. Jo
 
 NAME=CLB:$CASE
 
+GPU_PER_TASK=0
 if test "$RUN_GPU" == "y"
 then
-	GPU_HEADER="#SBATCH --gres=gpu:$TASKS_PER_NODE"
+	GPU_PER_TASK=1
 fi
 
 if [ ! -z "$MEMORY_PER_CORE" ]
@@ -79,35 +103,28 @@ else
     echo -e	"	MEMORY_PER_CORE is not declared, default value will be used."
 fi
 
-sbatch $(arg --account $GRANT) $(arg --partition $MAIN_PARTITION) $(arg --qos $MAIN_QOS) "$@" <<EOF
-#!/bin/bash -l
-#SBATCH --job-name=$NAME
-#SBATCH --nodes=$NODES 
-#SBATCH --ntasks=$TASKS
-#SBATCH --cpus-per-task=$CORES_PER_TASK
-#SBATCH --ntasks-per-node=$TASKS_PER_NODE
-#SBATCH --time=01:00:00 
-$MEM_PER_CORE_HEADER
-$GPU_HEADER
+echo "Running '$CASE' with model '$MODEL' on '$TASKS' MPI ranks"
+echo "   using reserving $CORES_PER_TASK cores and $GPU_PER_TASK GPUs per MPI rank"
 
-ulimit -l unlimited
-
-    cd \$SLURM_SUBMIT_DIR 
-echo "###### Nodes:          #######"
-    srun hostname
-echo "###### Loading modules #######"
-	source $PP/conf.ini
-	mod_add=false
-	source $PP/mods.ini RUN
-echo "###### --------------- #######"
-	echo -e "Executing command:\n$RUN_COMMAND $SINGULARITY_COMMAND $SOLVER $CASE\n"
-echo "###### --------------- #######"	
-echo ""
-	trap "say Errored" ERR
-	trap "say Terminated" TERM
-	trap "say Killed" KILL
+source_engine $ENGINE
+(
 	set -e
-	say Started
-	$RUN_COMMAND $SINGULARITY_COMMAND $SOLVER $CASE
-	say Finished
-EOF
+	q_header
+	q_name $NAME
+	q_queue $MAIN_PARTITION
+	q_grant $GRANT
+	q_qos $MAIN_QOS
+	q_units $NODES $TASKS_PER_NODE $CORES_PER_TASK $GPU_PER_TASK
+	q_walltime 01:00:00
+
+	echo
+	echo "ulimit -l unlimited"
+	echo "set -e # exit on error"
+	echo
+	module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN
+	echo
+	echo "cd \$SLURM_SUBMIT_DIR"
+	echo "$RUN_COMMAND $SINGULARITY_COMMAND $SOLVER $CASE"
+) >tmp.job.scr
+
+q_run tmp.job.scr

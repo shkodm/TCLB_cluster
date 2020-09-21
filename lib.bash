@@ -51,6 +51,14 @@ function source_cluster {
 		true	
 	elif test -f "$PP/cluster/$CLUSTER.bash"
 	then
+		if test -z "$ONLY_PRINT"
+		then
+			ONLY_PRINT=false
+		fi
+		if test -z "$RUN_WAIT"
+		then
+			RUN_WAIT=false
+		fi
 		source "$PP/cluster/$CLUSTER.bash"
 	else
 		echo "Cluster defaults '$CLUSTER' not found in cluster/:"
@@ -263,4 +271,16 @@ function display_scr {
 #}
 #trap rm_script EXIT
 
-	
+function update_log {
+	LOG_FILE="$1"
+	if test -f "$LOG_FILE"
+	then
+		if test -z "$LOG_SKIP"
+		then
+			LOG_SKIP=0
+		fi
+		exec 3>&1
+		LOG_BYTES=$( dd bs=1 skip=$LOG_SKIP if="$LOG_FILE" 2>&1 1>&3 | sed -n -E -e 's/^([0123456789]*)[+]0 records out.*$/\1/p')
+		LOG_SKIP=$[$LOG_SKIP+$LOG_BYTES]
+	fi
+}
