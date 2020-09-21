@@ -55,6 +55,11 @@ function q_batch {
 }
 
 function q_run_and_wait {
-	qsub -W block=true "$@"
+	if $ONLY_PRINT
+	then
+		cat $1 | display_scr
+	else
+		qsub -W block=true "$@"
+	fi
 }
 

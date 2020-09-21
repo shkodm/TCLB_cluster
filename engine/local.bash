@@ -39,7 +39,12 @@ function q_batch {
 	bash "$@"
 }
 
-function q_run_and_wait {
-	bash "$@"
+function q_run {
+	if $ONLY_PRINT
+	then
+		cat $1 | display_scr
+	else
+		bash "$@"
+	fi
 }
 
