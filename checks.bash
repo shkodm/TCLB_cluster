@@ -25,18 +25,18 @@ function TCLB_CHECK {
 	return 0
 }
 
-function RHOME_CHECK {
-    if [ ! -f "$RHOME/bin/R" ]
-    then
-            echo R not found in $RHOME/bin/
-            return 1
-    fi
-    return 0
-}
+#function RHOME_CHECK {
+#    if [ ! -f "$RHOME/bin/R" ]
+#    then
+#            echo R not found in $RHOME/bin/
+#            return 1
+#    fi
+#    return 0
+#}
 
 function MODULES_CHECK {
 	# "On RYSY modules shall be checked on computational node"  # 
-	if test "$MODULES_CHECK_AVAILABILITY" == "yes"
+	if test "$MODULES_CHECK_AVAILABILITY" == "y"
 	then
 		echo "Checking availability of the modules..."
 		for i in $@

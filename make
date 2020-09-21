@@ -35,7 +35,7 @@ test -z "$1" && usage
 source_engine $ENGINE
 (
 	q_header
-	q_name "TCLB:make:$MODEL"
+	q_name "TCLB_make_$MODEL"
 	q_queue $DEBUG_PARTITION
 	q_grant $GRANT
 	q_qos $DEBUG_QOS
