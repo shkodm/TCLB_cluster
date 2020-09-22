@@ -1,5 +1,7 @@
 function q_header {
 	echo "#!/bin/bash"
+	BATCH=true
+	q_option "-j oe"
 }
 
 function q_option {
@@ -12,7 +14,7 @@ function q_option {
 }
 
 function q_name {
-	test -z "$1" || q_option "-N $1"
+	test -z "$1" || q_option "-N $(echo "$1" | sed 's/:/-/g')"
 }
 
 function q_units { 
@@ -21,17 +23,16 @@ function q_units {
 	CPR="$3" # CPUs per rank
 	GPR="$4" # GPUs per rank
 
-	nodespec=""
-	nodespec="$nodespec:ncpus=$[$CPR * $RPN]"
+	q_option "-l ncpus=$[$N * $RPN * $CPR]"
+	MPI_OPTS="$MPI_OPTS -np $[$N * $RPN]"
 	if test "1" -lt "$CPR"
 	then
-		nodespec="$nodespec:ncpus=$[$CPR * $RPN]:mpiprocs=$RPN"
+		MPI_OPTS="$MPI_OPTS --map-by node:PE=$CPR --rank-by core"
 	fi
 	if test "0" -lt "$GPR"
 	then
-		nodespec="$nodespec:gpus=$[$GPR * $RPN]"
+		q_option "-l gpus=$[$GPR * $RPN]"
 	fi
-	q_option "-l select=$N$nodespec"
 }
 
 function q_walltime {
@@ -54,12 +55,17 @@ function q_batch {
 	qsub "$@"
 }
 
-function q_run_and_wait {
+function q_run {
 	if $ONLY_PRINT
 	then
 		cat $1 | display_scr
 	else
-		qsub -W block=true "$@"
+		if $RUN_WAIT
+		then
+			qsub -W block=true "$@"
+		else
+			qsub "$@"
+		fi
 	fi
 }
 
