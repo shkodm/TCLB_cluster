@@ -11,11 +11,16 @@ function q_name {
 }
 
 function q_units { 
-	if test "1" -lt "$1"
+	N="$1" # Nodes
+	RPN="$2" # MPI ranks per node
+	CPR="$3" # CPUs per rank
+	GPR="$4" # GPUs per rank
+	if test "1" -lt "$N"
 	then
 		echo "Running on more then one node in local is not supported"
 		exit 2
 	fi
+	MPI_OPTS="$MPI_OPTS -np $RPN"
 	true
 }
 

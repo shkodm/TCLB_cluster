@@ -123,8 +123,8 @@ source_engine $ENGINE
 	echo
 	module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN
 	echo
-	echo "cd \$SLURM_SUBMIT_DIR"
-	echo "$RUN_COMMAND $SINGULARITY_COMMAND $SOLVER $CASE"
+	echo "cd $PWD"
+	echo "$RUN_COMMAND $MPI_OPTS $SINGULARITY_COMMAND $SOLVER $CASE"
 ) >tmp.job.scr
 
 q_run tmp.job.scr

@@ -22,7 +22,7 @@ def RUN_GPU "y" "yn"
 function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
 	n) def CONFOPT "--disable-cuda" ;;
-	y) def CONFOPT "--with-cuda-arch=sm_30" ;;
+	y) def CONFOPT "--with-cuda-arch=sm_60" ;;
 	esac
 }
 def MODULES_BASE ""
@@ -38,7 +38,7 @@ adv PREPARE ""
 adv PREPARE_CONFIGURE ""
 adv PREPARE_MAKE ""
 adv PREPARE_RUN ""
-adv RUN_COMMAND "runmpi"
+adv RUN_COMMAND "mpirun"
 adv SINGULARITY_COMMAND ""
 if command -v "sbatch" >/dev/null
 then
