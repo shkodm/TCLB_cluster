@@ -29,6 +29,7 @@ def MODULES_BASE ""
 adv RUN_SINGULARITY "n" "yn"
 adv DEBUG_QOS ""
 adv MAIN_QOS ""
+adv CORES_PER_TASK "1"
 adv CORES_PER_TASK_FULL "1"
 adv MEMORY_PER_CORE ""
 adv MODULES_ADD  ""
@@ -56,11 +57,15 @@ else
 	def ENGINE_RUN  local
 fi
 def MAX_TASKS_PER_NODE 1
+def MAX_TASKS_PER_NODE 1
 def MAX_TASKS_PER_NODE_FOR_COMPILATION 1
 function MAX_TASKS_PER_NODE_CHECK {
 	check_integer "$1"
 }
 function MAX_TASKS_PER_NODE_FOR_COMPILATION_CHECK {
+	check_integer "$1"
+}
+function CORES_PER_TASK_CHECK {
 	check_integer "$1"
 }
 function CORES_PER_TASK_FULL_CHECK {
@@ -111,7 +116,8 @@ ask DEBUG_PARTITION "What is the name of the debug partition"
 ask MAIN_PARTITION "What is the name of the main partition to use"
 ask MAX_TASKS_PER_NODE "What is the maximal number of (mpi) processes/gpus per node"
 ask MAX_TASKS_PER_NODE_FOR_COMPILATION "What is the maximal number of processes for compilation"
-ask CORES_PER_TASK_FULL "How many cores per task (i.e. mpi processes)"
+ask CORES_PER_TASK "How many cores per task (i.e. mpi processes)"
+ask CORES_PER_TASK_FULL "How many cores per task (i.e. mpi processes) if multiple nodes are used"
 ask MEMORY_PER_CORE "How much memory (GB) per core shall be declared (reserved)"
 ask MODULES_BASE "What modules to load ('-' for unload) for running/compiling TCLB"
 ask MODULES_ADD  "What additional modules to load for compilation"

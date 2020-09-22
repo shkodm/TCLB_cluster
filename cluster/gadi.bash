@@ -21,6 +21,7 @@ function RUN_GPU_CHECK {
 		def CONFOPT "--with-cuda-arch=sm_30"
 		adv MAX_TASKS_PER_NODE 4
 		adv MAX_TASKS_PER_NODE_FOR_COMPILATION 48
+		adv CORES_PER_TASK 12
 		adv CORES_PER_TASK_FULL 12
 		def MEMORY_PER_CORE 2.5
 		;;

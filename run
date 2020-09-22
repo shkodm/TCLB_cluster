@@ -29,6 +29,7 @@ do
 		*) set -- "$@" "$arg";;
 	esac
 done
+set -e
 
 MODEL=$1
 if test -z "$MODEL"
@@ -71,7 +72,6 @@ then
 else
 	TASKS_PER_NODE=$TASKS
 	NODES=1
-	CORES_PER_TASK=1
 fi
 
 # REMAINDER=$[($NODES*$TASKS_PER_NODE)%$TASKS]

@@ -14,7 +14,7 @@ function q_option {
 }
 
 function q_name {
-	test -z "$1" || q_option "-N $(echo "$1" | sed 's/:/-/g')"
+	test -z "$1" || q_option "-N $(echo "$1" | sed 's|[:/.]|-|g')"
 }
 
 function q_units { 
@@ -31,7 +31,7 @@ function q_units {
 	fi
 	if test "0" -lt "$GPR"
 	then
-		q_option "-l gpus=$[$GPR * $RPN]"
+		q_option "-l ngpus=$[$GPR * $RPN]"
 	fi
 }
 
