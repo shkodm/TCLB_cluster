@@ -58,7 +58,7 @@ else
 fi
 def MAX_TASKS_PER_NODE 1
 def MAX_TASKS_PER_NODE 1
-def MAX_TASKS_PER_NODE_FOR_COMPILATION 1
+def MAX_TASKS_PER_NODE_FOR_COMPILATION $(grep processor /proc/cpuinfo  | wc -l)
 function MAX_TASKS_PER_NODE_CHECK {
 	check_integer "$1"
 }
