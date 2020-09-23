@@ -31,7 +31,7 @@ function q_units {
 	fi
 	if test "0" -lt "$GPR"
 	then
-		q_option "-l ngpus=$[$GPR * $RPN]"
+		q_option "-l ngpus=$[$N * $RPN * $GPR]"
 	fi
 }
 
@@ -49,6 +49,13 @@ function q_grant {
 
 function q_queue {
 	test -z "$1" || q_option "-q $1"
+}
+
+function q_mem {
+	N="$1" # Nodes
+	RPN="$2" # MPI ranks per node
+	MPR="$3" # mem per rank
+	test -z "$3" || q_option "-l mem=$[$N * $RPN * $MPR]GB"
 }
 
 function q_batch {

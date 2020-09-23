@@ -23,7 +23,7 @@ function RUN_GPU_CHECK {
 		adv MAX_TASKS_PER_NODE_FOR_COMPILATION 48
 		adv CORES_PER_TASK 12
 		adv CORES_PER_TASK_FULL 12
-		def MEMORY_PER_CORE 2.5
+		def MEMORY_PER_TASK 32
 		;;
 	n)
 		echo "CPU runs are not supported on gadi"

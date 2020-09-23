@@ -83,10 +83,7 @@ fi
 
 CORES=$[$NODES*$TASKS_PER_NODE*$CORES_PER_TASK]
 
-echo -e "Trying to run $CASE with $MODEL model on $TASKS (mpi)processes/gpus. Job details:
-	CORES=NODESxTASKS_PER_NODExCORES_PER_TASK: $CORES = $NODES x $TASKS_PER_NODE x $CORES_PER_TASK"
-
-NAME=CLB:$CASE
+NAME=TCLB:$CASE
 
 GPU_PER_TASK=0
 if test "$RUN_GPU" == "y"
@@ -94,17 +91,13 @@ then
 	GPU_PER_TASK=1
 fi
 
-if [ ! -z "$MEMORY_PER_CORE" ]
-then
-	MEM_PER_CORE_HEADER="#SBATCH --mem-per-cpu=${MEMORY_PER_CORE}gb"
-	TOTAL_CPU_MEMORY=$[$MEMORY_PER_CORE*$CORES]
-	echo -e	"	TOTAL_CPU_MEMORY=MEMORY_PER_CORExCORES: ${TOTAL_CPU_MEMORY}gb = ${MEMORY_PER_CORE}gb x $CORES"
-else
-    echo -e	"	MEMORY_PER_CORE is not declared, default value will be used."
-fi
-
-echo "Running '$CASE' with model '$MODEL' on '$TASKS' MPI ranks"
-echo "   using reserving $CORES_PER_TASK cores and $GPU_PER_TASK GPUs per MPI rank"
+echo "Running:"
+echo "  case file: $CASE"
+echo "  model    : $MODEL"
+echo "  MPI ranks: $TASKS"
+echo "    CPU cores per rank: $CORES_PER_TASK"
+echo "    GPUs per rank     : $GPU_PER_TASK"
+echo "    memory per rank   : $MEMORY_PER_TASK"
 
 source_engine $ENGINE
 (
@@ -115,6 +108,7 @@ source_engine $ENGINE
 	q_grant $GRANT
 	q_qos $MAIN_QOS
 	q_units $NODES $TASKS_PER_NODE $CORES_PER_TASK $GPU_PER_TASK
+	q_mem $NODES $TASKS_PER_NODE $MEMORY_PER_TASK
 	q_walltime 01:00:00
 
 	echo
