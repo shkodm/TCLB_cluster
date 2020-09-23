@@ -44,7 +44,7 @@ function q_qos {
 }
 
 function q_grant {
-	test -z "$1" || q_option "-A $1"
+	test -z "$1" || q_option "-P $1"
 }
 
 function q_queue {
