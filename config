@@ -16,7 +16,6 @@ source_conf
 def GRANT "$(defgrant)"
 def TCLB "$(pwd)"
 def CONFOPT "--disable-cuda"
-adv RHOME $(R RHOME 2>/dev/null)
 def RUN_SINGULARITY "n" "yn"
 def RUN_GPU "y" "yn"
 function RUN_GPU_CHECK {
@@ -40,6 +39,7 @@ adv PREPARE_CONFIGURE ""
 adv PREPARE_MAKE ""
 adv PREPARE_RUN ""
 adv RUN_COMMAND "mpirun"
+adv ADD_PATH ""
 adv SINGULARITY_COMMAND ""
 if command -v "sbatch" >/dev/null
 then
@@ -109,7 +109,7 @@ ask TCLB "What is the path to TCLB" path
 ask RUN_SINGULARITY "Do you want to run in Singularity container"
 ask RUN_GPU "Do you want to run on GPU"
 ask CONFOPT "Provide ./configure options you want to use (please use single ' for quotes)"
-ask RHOME "What is the path to R (without the bin/ part)"
+ask ADD_PATH "Additional paths to add to PATH"
 ask DEBUG_QOS "What is the name of the debug qos"
 ask MAIN_QOS "What is the name of the main qos to use"
 ask DEBUG_PARTITION "What is the name of the debug partition"
@@ -146,11 +146,7 @@ then
 		q_walltime 00:15:00
 		q_units 1 1 1 0
 
-		echo
-		echo "set -e # exit on error"
-		echo
-		module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN
-		echo
+		env_prepare
 		echo "cd $TCLB"
 		if test "$RUN_INSTALL_RDEP" == "y"
 		then

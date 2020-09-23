@@ -113,10 +113,7 @@ source_engine $ENGINE
 
 	echo
 	echo "ulimit -l unlimited"
-	echo "set -e # exit on error"
-	echo
-	module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN
-	echo
+	env_prepare
 	echo "cd $PWD"
 	echo "$RUN_COMMAND $MPI_OPTS $SINGULARITY_COMMAND $SOLVER $CASE"
 ) >tmp.job.scr

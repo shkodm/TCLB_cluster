@@ -42,11 +42,7 @@ source_engine $ENGINE
 	q_walltime 00:15:00
 	q_units 1 1 $MAX_TASKS_PER_NODE_FOR_COMPILATION 0
 
-	echo
-	echo "set -e # exit on error"
-	echo
-	module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN
-	echo
+	env_prepare
 	echo "cd $TCLB"
 	echo "make -j $MAX_TASKS_PER_NODE_FOR_COMPILATION" "$@"
 ) >tmp.job.scr

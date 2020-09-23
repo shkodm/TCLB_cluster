@@ -13,4 +13,4 @@ fix MAX_TASKS_PER_NODE 24
 fix CORES_PER_TASK_FULL 1
 fix MODULES_ADD ""
 fix PREPARE "ulimit -S -s 81920"
-def RHOME "$(echo /opt/R/*/bin/R | cut -f 1 -d ' ' | sed 's|bin/R||')"
+def ADD_PATH "$(ls /opt/R/*/bin/R | tail -1 | sed 's|R$||')"
