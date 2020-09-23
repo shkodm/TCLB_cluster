@@ -44,7 +44,7 @@ source_engine $ENGINE
 
 	env_prepare
 	echo "cd $TCLB"
-	echo "make --output-sync -j $MAX_TASKS_PER_NODE_FOR_COMPILATION" "$@"
+	echo "make -j $MAX_TASKS_PER_NODE_FOR_COMPILATION" "$@"
 ) >tmp.job.scr
 
 q_run tmp.job.scr
