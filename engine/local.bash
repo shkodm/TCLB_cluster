@@ -1,5 +1,5 @@
 function q_header {
-	echo "#!/bin/bash"
+	true
 }
 
 function q_option {
@@ -17,7 +17,7 @@ function q_units {
 	GPR="$4" # GPUs per rank
 	if test "1" -lt "$N"
 	then
-		echo "Running on more then one node in local is not supported"
+		echo "Running on more then one node in local is not supported" >&2
 		exit 2
 	fi
 	MPI_OPTS="$MPI_OPTS -np $RPN"
@@ -37,6 +37,10 @@ function q_grant {
 }
 
 function q_queue {
+	true
+}
+
+function q_mem {
 	true
 }
 

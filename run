@@ -13,7 +13,7 @@ test -f $PP/conf.ini || exit -1
 . $PP/lib.bash
 source_conf
 
-ENGINE="$ENGINE_MAKE"
+ENGINE="$ENGINE_RUN"
 ONLY_PRINT=false
 RUN_WAIT=false
 for arg

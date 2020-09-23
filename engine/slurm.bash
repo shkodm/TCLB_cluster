@@ -47,6 +47,13 @@ function q_queue {
 	test -z "$1" || q_option "--partition=$1"
 }
 
+function q_mem {
+	N="$1" # Nodes
+	RPN="$2" # MPI ranks per node
+	MPR="$3" # mem per rank
+	test -z "$3" || q_option "--mem=$[$RPN * $MPR]G"
+}
+
 function q_batch {
 	sbatch "$@"
 }
