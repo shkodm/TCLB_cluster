@@ -52,7 +52,7 @@ function RUN_GPU_CHECK {
 		def MAX_TASKS_PER_NODE 4
 		def MAX_TASKS_PER_NODE_FOR_COMPILATION 30
 		def CORES_PER_TASK_FULL 1
-		def MEMORY_PER_CORE 5
+		def MEMORY_PER_TASK 5
 		;;
 	*)
 		echo "RUN_GPU should be y! Only GPU jobs shall run on RYSY"

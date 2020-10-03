@@ -1,12 +1,50 @@
 #/bin/bash
 
-PP=$(dirname $0)
-[ -f $PP/conf.ini ] || $PP/config
-[ -f $PP/conf.ini ] || exit -1
-. $PP/lib.bash
-. $PP/conf.ini
+set -e
 
-PPN=$[$CORES_PER_TASK_FULL*$MAX_TASKS_PER_NODE_FOR_COMPILATION]
-echo "Running make on $PPN cores"
-echo "salloc $(arg --account $GRANT) $(arg --partition $DEBUG_PARTITION) $(arg --qos $MAIN_QOS) --ntasks=1 --cpus-per-task=$PPN $PP/exec.make -j$PPN $@"
-salloc $(arg --account $GRANT) $(arg --partition $DEBUG_PARTITION) $(arg --qos $MAIN_QOS) --ntasks=1 --cpus-per-task=$PPN $PP/exec.make -j$PPN $@
+function usage {
+	echo "p/make [--print] [--local] [--no-wait] model"
+	exit 2
+}
+
+PP=$(dirname $0)
+test -f $PP/conf.ini || $PP/config
+test -f $PP/conf.ini || exit -1
+. $PP/lib.bash
+source_conf
+
+ENGINE="$ENGINE_MAKE"
+ONLY_PRINT=false
+RUN_WAIT=true
+for arg
+do
+	shift
+	case "$arg" in
+		-h|--help) usage;;
+		--slurm) ENGINE="slurm" ;;
+		--pbs) ENGINE="pbs" ;;
+		--local) ENGINE="local" ;;
+		--print) ONLY_PRINT=true;;
+		--no-wait) RUN_WAIT=false;;
+		*) set -- "$@" "$arg";;
+	esac
+done
+
+test -z "$1" && usage
+
+source_engine $ENGINE
+(
+	q_header
+	q_name "TCLB_make_$MODEL"
+	q_queue $DEBUG_PARTITION
+	q_grant $GRANT
+	q_qos $DEBUG_QOS
+	q_walltime 00:15:00
+	q_units 1 1 $MAX_TASKS_PER_NODE_FOR_COMPILATION 0
+
+	env_prepare
+	echo "cd $TCLB"
+	echo "make -j $MAX_TASKS_PER_NODE_FOR_COMPILATION" "$@"
+) >tmp.job.scr
+
+q_run tmp.job.scr

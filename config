@@ -1,59 +1,124 @@
 #!/bin/bash
 
-# set -e
+set -e
 
 PP=$(dirname $0)
 
 source $PP/lib.bash
 source $PP/checks.bash
-while true
+
+source_conf
+
+# def -- set the default value of the setting
+# adv -- set the default value of the setting and mark it as "advanced" setting
+# fix -- set the value of the setting and fix it
+
+def GRANT "$(defgrant)"
+def TCLB "$(pwd)"
+def CONFOPT "--disable-cuda"
+def RUN_SINGULARITY "n" "yn"
+def RUN_GPU "y" "yn"
+function RUN_GPU_CHECK {
+	case "$RUN_GPU" in
+	n) def CONFOPT "--disable-cuda" ;;
+	y) def CONFOPT "--with-cuda-arch=sm_60" ;;
+	esac
+}
+def MODULES_BASE ""
+adv RUN_SINGULARITY "n" "yn"
+adv DEBUG_QOS ""
+adv MAIN_QOS ""
+adv CORES_PER_TASK "1"
+adv CORES_PER_TASK_FULL "1"
+adv MEMORY_PER_TASK ""
+adv MODULES_ADD  ""
+adv MODULES_RUN  ""
+adv MODULES_CHECK_AVAILABILITY "y" "yn"
+adv PREPARE ""
+adv PREPARE_CONFIGURE ""
+adv PREPARE_MAKE ""
+adv PREPARE_RUN ""
+adv RUN_COMMAND "mpirun"
+adv ADD_PATH ""
+adv SINGULARITY_COMMAND ""
+if command -v "sbatch" >/dev/null
+then
+	def ENGINE_CONF local
+	def ENGINE_MAKE local
+	def ENGINE_RUN  slurm
+elif command -v "qsub" >/dev/null
+then
+	def ENGINE_CONF local
+	def ENGINE_MAKE local
+	def ENGINE_RUN  pbs
+else
+	def ENGINE_CONF local
+	def ENGINE_MAKE local
+	def ENGINE_RUN  local
+fi
+def MAX_TASKS_PER_NODE 1
+def MAX_TASKS_PER_NODE 1
+def MAX_TASKS_PER_NODE_FOR_COMPILATION $(grep processor /proc/cpuinfo  | wc -l)
+function MAX_TASKS_PER_NODE_CHECK {
+	check_integer "$1"
+}
+function MAX_TASKS_PER_NODE_FOR_COMPILATION_CHECK {
+	check_integer "$1"
+}
+function CORES_PER_TASK_CHECK {
+	check_integer "$1"
+}
+function CORES_PER_TASK_FULL_CHECK {
+	check_integer "$1"
+}
+def RUN_INSTALL_RDEP "y" "yn"
+def RUN_CONFIGURE "y" "yn"
+
+adv CLUSTER "$(find_cluster)"
+
+ONLY_PRINT=false
+RUN_WAIT=true
+while ! test -z "$1"
 do
 	case "$1" in
 		-h|--help) usage;;
 		-y|--yes) agree=true;;
 		-d|--default) def=true;;
-		*) break;;
+		--slurm) fix ENGINE_CONF "slurm" ;;
+		--pbs) fix ENGINE_CONF "pbs" ;;
+		--local) fix ENGINE_CONF "local" ;;
+		--gpu) fix RUN_GPU "y";;
+		--cpu) fix RUN_GPU "n";;
+		-c|--cluster) shift; fix CLUSTER "$1";;
+		--no-cluster) shift; fix CLUSTER "";;
+		--print) ONLY_PRINT=true;;
+		--no-wait) RUN_WAIT=false;;
+		*) echo "Unknown option '$1'"; exit 2;;
 	esac
 	shift
 done
 
-source_conf
 ask_init
-
-# RUN_COMMAND="mpirun"
-RUN_COMMAND_ASK="y"
-GRANT_DEF="$(defgrant)"
-TCLB_DEF="$(pwd)"
-CONFOPT_DEF="--disable-cuda"
-RHOME_DEF=$(R RHOME 2>/dev/null)
-RHOME_ASK="fix"
-RUN_SINGULARITY_ASK="yn"
-RUN_SINGULARITY_DEF="n"
-RUN_GPU_ASK="yn"
-RUN_GPU_DEF="y"
-MODULES_BASE_DEF="purge"
-MODULES_CHECK_AVAILABILITY_ASK="no"
-PREPARE_ASK="no"
-PREPARE_CONFIGURE_ASK="no"
-PREPARE_MAKE_ASK="no"
-PREPARE_RUN_ASK="no"
-
+ask CLUSTER "What cluster defaults to load"
 source_cluster
-
+ask ENGINE_CONF "What scheduler to use for configuration (slurm|pbs|local)"
+ask ENGINE_MAKE "What scheduler to use for compilation (slurm|pbs|local)"
+ask ENGINE_RUN  "What scheduler to use for execution (slurm|pbs|local)"
 ask GRANT "What is your grant name"
 ask TCLB "What is the path to TCLB" path
 ask RUN_SINGULARITY "Do you want to run in Singularity container"
 ask RUN_GPU "Do you want to run on GPU"
 ask CONFOPT "Provide ./configure options you want to use (please use single ' for quotes)"
-ask RHOME "What is the path to R (without the bin/ part)"
+ask ADD_PATH "Additional paths to add to PATH"
 ask DEBUG_QOS "What is the name of the debug qos"
 ask MAIN_QOS "What is the name of the main qos to use"
 ask DEBUG_PARTITION "What is the name of the debug partition"
 ask MAIN_PARTITION "What is the name of the main partition to use"
 ask MAX_TASKS_PER_NODE "What is the maximal number of (mpi) processes/gpus per node"
-ask MAX_TASKS_PER_NODE_FOR_COMPILATION "What is the maximal number of (mpi) processes/gpus per node - for compilation"
-ask CORES_PER_TASK_FULL "How many cores per task (i.e. mpi processes)"
-ask MEMORY_PER_CORE "How much memory (GB) per core shall be declared (reserved)"
+ask MAX_TASKS_PER_NODE_FOR_COMPILATION "What is the maximal number of processes for compilation"
+ask CORES_PER_TASK "How many cores per task (i.e. mpi processes)"
+ask CORES_PER_TASK_FULL "How many cores per task (i.e. mpi processes) if multiple nodes are used"
+ask MEMORY_PER_TASK "How much memory (GB) per rank shall be declared (reserved)"
 ask MODULES_BASE "What modules to load ('-' for unload) for running/compiling TCLB"
 ask MODULES_ADD  "What additional modules to load for compilation"
 ask MODULES_RUN  "What modules to load ('-' for unload) for running TCLB"
@@ -64,88 +129,35 @@ ask PREPARE_MAKE "What commands to run before running make"
 ask PREPARE_RUN "What commands to run before running TCLB"
 ask RUN_COMMAND "What command to use to run MPI application (runmpi|srun|aprun)"
 ask SINGULARITY_COMMAND "What command to use to run singularity container (singularity exec path_to_image.sif | singularity exec --nv path_to_image.sif)"
-
+ask RUN_INSTALL_RDEP "Do you want to install needed R packages now?"
+ask RUN_CONFIGURE "Do you want to run ./configure now?"
 save_conf
 
-if ! test -z "$MODULES_RUN"
+source_engine $ENGINE_CONF
+
+if test "$RUN_INSTALL_RDEP" == "y" || test "$RUN_CONFIGURE" == "y"
 then
-	MODULES_RUN_LOAD="quiet_run module load $MODULES_RUN"
-fi
+	(
+		q_header
+		q_name "TCLB:configure"
+		q_queue $DEBUG_PARTITION
+		q_grant $GRANT
+		q_qos $DEBUG_QOS
+		q_walltime 00:15:00
+		q_units 1 1 1 0
 
-if ! test -z "$MODULES_ADD"
-then
-	MODULES_ADD_LOAD="\$mod_add && quiet_run module load $MODULES_ADD"
-fi
+		env_prepare
+		echo "cd $TCLB"
+		if test "$RUN_INSTALL_RDEP" == "y"
+		then
+			echo "./tools/install.sh rdep"
+		fi
+		if test "$RUN_CONFIGURE" == "y"
+		then
+			echo "make configure"
+			echo "./configure $CONFOPT"
+		fi
+	) >tmp.job.scr
 
-if ! test -z "$RHOME"
-then
-	RHOME_LOAD="export PATH=\"$RHOME/bin:\$PATH\""
-fi
-
-cat >$PP/mods.ini <<EOF
-
-TYPE=\$1
-test -z "\$TYPE" && TYPE=MAKE
-
-function quiet_run {
-	echo -n "\$@... "
-	TMPF=\$(mktemp)
-	if ! \$@ >"\$TMPF" 2>&1
-	then
-		echo "ERROR ------";
-		cat "\$TMPF";
-		echo "------- END -------";
-		rm "\$TMPF";
-		exit -1;
-	else
-		rm "\$TMPF";
-		echo "OK"
-	fi
-}
-
-if ! declare -f pb_msg >/dev/null
-then
-	function pb_msg { return 0; }
-	function pb_file { return 0; }
-else
-	PB_CURL_OPT="--insecure"
-fi
-
-function say {
-	MSG="\$@"
-	pb_msg "\$SLURM_JOB_NAME" "\$MSG (after \$SECONDS s)"
-}
-
-$(test -z "$RHOME" || echo "export PATH=\"$RHOME/bin:\$PATH\"" )
-
-case "\$TYPE" in
-"MAKE")
-	$(module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN )
-	$PREPARE_MAKE
-	;;
-"CONFIGURE")
-	$(module_list $MODULES_BASE $MODULES_ADD $MODULES_RUN )
-	$PREPARE_CONFIGURE
-	;;
-"RUN")
-	$(module_list $MODULES_BASE $MODULES_RUN )
-	$PREPARE_RUN
-	;;
-esac
-
-$PREPARE
-
-
-EOF
-
-if ask_no "Do you want to install needed R packages now?"
-then
-	echo "salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00  $PP/exec.install --skipssl rdep"
-		  salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00  $PP/exec.install --skipssl rdep
-fi
-
-if ask_yes "Do you want to run ./configure now?"
-then
-	echo "salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00 $PP/exec.configure $CONFOPT"
-		  salloc $(arg --partition $DEBUG_PARTITION) $(arg --account $GRANT) --ntasks=1 $(arg --qos $DEBUG_QOS) --time=00:15:00 $PP/exec.configure $CONFOPT	
+	q_run tmp.job.scr
 fi
