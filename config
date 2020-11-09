@@ -25,7 +25,7 @@ function RUN_GPU_CHECK {
 	esac
 }
 def MODULES_BASE ""
-adv RUN_SINGULARITY "n" "yn"
+#adv RUN_SINGULARITY "n" "yn"
 adv DEBUG_QOS ""
 adv MAIN_QOS ""
 adv CORES_PER_TASK "1"
@@ -158,6 +158,5 @@ then
 			echo "./configure $CONFOPT"
 		fi
 	) >tmp.job.scr
-
 	q_run tmp.job.scr
 fi
