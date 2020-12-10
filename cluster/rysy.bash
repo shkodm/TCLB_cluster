@@ -1,6 +1,6 @@
 # rysy
 
-echo -e "You are on the RYSY cluster."
+echo -e "You are on the RYSY cluster (ICM, UW)."
 echo -e "Singularity container with TCLB can be used here instead of modules. \n"
 
 #https://cloud.sylabs.io/library/mdzik/default/tclb
@@ -23,6 +23,7 @@ DEBUG_PARTITION_ASK="no"
 MAIN_PARTITION_ASK="no"
 fix MAIN_QOS "normal" # "normal" is default
 fix DEBUG_QOS "short" # QOSMaxWallDurationPerJobLimit for "--qos=short" is --time=00:15:00
+fix ENGINE slurm
 
 function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
@@ -62,3 +63,5 @@ function RUN_GPU_CHECK {
 MODULES_ADD_ASK="no"
 MODULES_RUN_ASK="no"
 MODULES_CHECK_AVAILABILITY="no"
+
+fix Q_HEADER_SHELL_FLAGS "-l" # required to see modules on rysy
