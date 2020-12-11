@@ -102,7 +102,7 @@ echo "    memory per rank   : $MEMORY_PER_TASK"
 source_engine $ENGINE
 (
 	set -e
-	q_header
+	q_header $Q_HEADER_SHELL_FLAGS
 	q_name $NAME
 	q_queue $MAIN_PARTITION
 	q_grant $GRANT
@@ -110,9 +110,14 @@ source_engine $ENGINE
 	q_units $NODES $TASKS_PER_NODE $CORES_PER_TASK $GPU_PER_TASK
 	q_mem $NODES $TASKS_PER_NODE $MEMORY_PER_TASK
 	q_walltime 01:00:00
-
+	
 	echo
 	echo "ulimit -l unlimited"
+	echo "echo \"running on:\""
+	echo "hostname"
+	echo
+	echo "date"
+	
 	env_prepare
 	echo "cd $PWD"
 	echo "$RUN_COMMAND $MPI_OPTS $SINGULARITY_COMMAND $SOLVER $CASE"

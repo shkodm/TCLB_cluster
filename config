@@ -25,7 +25,7 @@ function RUN_GPU_CHECK {
 	esac
 }
 def MODULES_BASE ""
-adv RUN_SINGULARITY "n" "yn"
+#adv RUN_SINGULARITY "n" "yn"
 adv DEBUG_QOS ""
 adv MAIN_QOS ""
 adv CORES_PER_TASK "1"
@@ -41,6 +41,9 @@ adv PREPARE_RUN ""
 adv RUN_COMMAND "mpirun"
 adv ADD_PATH ""
 adv SINGULARITY_COMMAND ""
+def Q_HEADER_SHELL_FLAGS ""
+Q_HEADER_SHELL_FLAGS_ASK="no"
+
 if command -v "sbatch" >/dev/null
 then
 	def ENGINE_CONF local
@@ -123,6 +126,7 @@ ask MODULES_BASE "What modules to load ('-' for unload) for running/compiling TC
 ask MODULES_ADD  "What additional modules to load for compilation"
 ask MODULES_RUN  "What modules to load ('-' for unload) for running TCLB"
 ask MODULES_CHECK_AVAILABILITY "Shall check availability of the modules on the cluster?"
+ask Q_HEADER_SHELL_FLAGS "What flags to add when launching a new !/bin/bash shell?"
 ask PREPARE "What commands to run before running anything"
 ask PREPARE_CONFIGURE "What commands to run before running anything"
 ask PREPARE_MAKE "What commands to run before running make"
@@ -138,7 +142,7 @@ source_engine $ENGINE_CONF
 if test "$RUN_INSTALL_RDEP" == "y" || test "$RUN_CONFIGURE" == "y"
 then
 	(
-		q_header
+		q_header $Q_HEADER_SHELL_FLAGS
 		q_name "TCLB:configure"
 		q_queue $DEBUG_PARTITION
 		q_grant $GRANT
@@ -158,6 +162,5 @@ then
 			echo "./configure $CONFOPT"
 		fi
 	) >tmp.job.scr
-
 	q_run tmp.job.scr
 fi

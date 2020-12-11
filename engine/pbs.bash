@@ -1,5 +1,5 @@
 function q_header {
-	echo "#!/bin/bash"
+	echo "#!/bin/bash -l"
 	BATCH=true
 	q_option "-j oe"
 }
