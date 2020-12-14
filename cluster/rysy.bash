@@ -25,6 +25,10 @@ fix MAIN_QOS "normal" # "normal" is default
 fix DEBUG_QOS "short" # QOSMaxWallDurationPerJobLimit for "--qos=short" is --time=00:15:00
 fix ENGINE slurm
 
+def ENGINE_CONF slurm
+def ENGINE_MAKE slurm
+def ENGINE_RUN  slurm
+
 function RUN_GPU_CHECK {
 	case "$RUN_GPU" in
 	y)	
