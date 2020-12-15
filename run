@@ -3,7 +3,7 @@
 set -e
 
 function usage {
-	echo "p/run [--print] [--wait] model"
+	echo "p/run [--print] [--wait] model example.xml"
 	exit 2
 }
 
