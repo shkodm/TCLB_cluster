@@ -76,3 +76,10 @@ function q_run {
 	fi
 }
 
+function q_array {
+	test -z "$1" || (q_option "-r y"; q_option "-J $1")
+}
+
+function q_array_id {
+	echo '$PBS_ARRAY_INDEX'
+}

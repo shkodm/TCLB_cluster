@@ -104,3 +104,11 @@ function q_run {
 		fi
 	fi
 }
+
+function q_array {
+	test -z "$1" || q_option "--array=$1"
+}
+
+function q_array_id {
+	echo '$SLURM_ARRAY_TASK_ID'
+}

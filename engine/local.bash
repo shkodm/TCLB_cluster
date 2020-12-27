@@ -57,3 +57,10 @@ function q_run {
 	fi
 }
 
+function q_array {
+	false
+}
+
+function q_array_id {
+	echo '0'
+}
