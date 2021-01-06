@@ -258,8 +258,16 @@ function check_integer {
 }
 
 function display_scr {
+	F="$1"
+	shift
+	while ! test -z "$1"
+	do
+		echo -e "\x1B[32m# Additional command-line option:\x1B[92m $F\x1B[0m"
+		F="$1"
+		shift
+	done
 	echo
-	sed -E -e 's/$/\x1B[0m/' -e 's/^([^#][^#]*)/\x1B[93m\1/' -e 's/(#.*)$/\x1B[32m\1/' -e 's/(#SBATCH|#PBS) /\1 \x1B[92m/'
+	cat "$F" | sed -E -e 's/$/\x1B[0m/' -e 's/^([^#][^#]*)/\x1B[93m\1/' -e 's/(#.*)$/\x1B[32m\1/' -e 's/(#SBATCH|#PBS) /\1 \x1B[92m/'
 	echo
 }
 

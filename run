@@ -98,6 +98,11 @@ echo "  MPI ranks: $TASKS"
 echo "    CPU cores per rank: $CORES_PER_TASK"
 echo "    GPUs per rank     : $GPU_PER_TASK"
 echo "    memory per rank   : $MEMORY_PER_TASK"
+if ! test -z "$1"
+then
+	echo "  Options  :" "$@"
+fi
+echo
 
 source_engine $ENGINE
 (
@@ -123,4 +128,4 @@ source_engine $ENGINE
 	echo "$RUN_COMMAND $MPI_OPTS $SINGULARITY_COMMAND $SOLVER $CASE"
 ) >tmp.job.scr
 
-q_run tmp.job.scr
+q_run "$@" "tmp.job.scr"
