@@ -65,7 +65,7 @@ function q_batch {
 function q_run {
 	if $ONLY_PRINT
 	then
-		cat $1 | display_scr
+		display_scr "$@"
 	else
 		if $RUN_WAIT
 		then

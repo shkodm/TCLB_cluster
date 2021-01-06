@@ -96,7 +96,7 @@ function q_wait {
 function q_run {
 	if $ONLY_PRINT
 	then
-		cat $1 | display_scr
+		display_scr "$@"
 	else
 		JOBID=$(sbatch --parsable "$@")
 		if $RUN_WAIT

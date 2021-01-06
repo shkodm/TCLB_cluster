@@ -16,6 +16,7 @@ source_conf
 ENGINE="$ENGINE_RUN"
 ONLY_PRINT=false
 RUN_WAIT=false
+TIME="1:00:00"
 for arg
 do
 	shift
@@ -26,6 +27,8 @@ do
 		--local) ENGINE="local" ;;
 		--print) ONLY_PRINT=true;;
 		--wait) RUN_WAIT=true;;
+		--time=*) TIME="${arg#--time=}";;
+		--name=*) NAME="${arg#--name=}";;
 		*) set -- "$@" "$arg";;
 	esac
 done
@@ -83,7 +86,10 @@ fi
 
 CORES=$[$NODES*$TASKS_PER_NODE*$CORES_PER_TASK]
 
-NAME=TCLB:$CASE
+if test -z "$NAME"
+then
+	NAME="TCLB:$CASE"
+fi
 
 GPU_PER_TASK=0
 if test "$RUN_GPU" == "y"
@@ -98,6 +104,12 @@ echo "  MPI ranks: $TASKS"
 echo "    CPU cores per rank: $CORES_PER_TASK"
 echo "    GPUs per rank     : $GPU_PER_TASK"
 echo "    memory per rank   : $MEMORY_PER_TASK"
+echo "  Walltime : $TIME"
+if ! test -z "$1"
+then
+	echo "  Options  :" "$@"
+fi
+echo
 
 source_engine $ENGINE
 (
@@ -109,7 +121,7 @@ source_engine $ENGINE
 	q_qos $MAIN_QOS
 	q_units $NODES $TASKS_PER_NODE $CORES_PER_TASK $GPU_PER_TASK
 	q_mem $NODES $TASKS_PER_NODE $MEMORY_PER_TASK
-	q_walltime 01:00:00
+	q_walltime $TIME
 	
 	echo
 	echo "ulimit -l unlimited"
@@ -123,4 +135,4 @@ source_engine $ENGINE
 	echo "$RUN_COMMAND $MPI_OPTS $SINGULARITY_COMMAND $SOLVER $CASE"
 ) >tmp.job.scr
 
-q_run tmp.job.scr
+q_run "$@" "tmp.job.scr"
