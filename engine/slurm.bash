@@ -29,9 +29,6 @@ function q_units {
 	then
 		q_option "--gres=gpu:$[$GPR * $RPN]"
 	fi
-
-	# q_option "--nodelist=rysy-n6"
-	q_option "--exclude=rysy-n5"
 }
 
 function q_walltime {
