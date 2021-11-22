@@ -29,6 +29,8 @@ do
 		--wait) RUN_WAIT=true;;
 		--time=*) TIME="${arg#--time=}";;
 		--name=*) NAME="${arg#--name=}";;
+		--queue=*) MAIN_PARTITION="${arg#--queue=}";;
+		--xpath=*) XPATH="${arg#--xpath=}";;
 		*) set -- "$@" "$arg";;
 	esac
 done
@@ -132,7 +134,7 @@ source_engine $ENGINE
 	
 	env_prepare
 	echo "cd $PWD"
-	echo "$RUN_COMMAND $MPI_OPTS $SINGULARITY_COMMAND $SOLVER $CASE"
+	echo "$RUN_COMMAND $MPI_OPTS $SINGULARITY_COMMAND $SOLVER $CASE $XPATH"
 ) >tmp.job.scr
 
 q_run "$@" "tmp.job.scr"
