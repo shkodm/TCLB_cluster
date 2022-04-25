@@ -1,0 +1,28 @@
+#!/bin/bash
+### Simple wrapper around telegram to send messages, etc, useful for pinging when the job is finished
+### 1. Talk to Telegram Bot Father, to create a bot and get bot token (start with /newbot). Set TELEGRAM_BOT_TOKEN
+### 2. Find your bot and write him a message
+### 3. Get channel_id that was created using curl https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getUpdates,
+### Set TELEGRAM_BOT_CHANNEL_ID
+
+
+text=$1
+set -e
+
+if [[ -z "$TELEGRAM_BOT_TOKEN" ]]; then
+    echo "Please set TELEGRAM_BOT_TOKEN(Telegram bot token)"
+    exit 1
+fi 
+
+if [[ -z "$TELEGRAM_BOT_CHANNEL_ID" ]]; then
+    echo "Please set TELEGRAM_BOT_CHANNEL_ID(Telegram channel id)"
+    exit 1
+fi 
+
+if [[ -z "$text" ]]; then
+    echo "Cannot send empty text"
+    exit 1
+fi
+
+curl -s --show-error  -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage -d  chat_id=${TELEGRAM_BOT_CHANNEL_ID} \
+         -d text="${text}" -d parse_mode="MarkdownV2" 

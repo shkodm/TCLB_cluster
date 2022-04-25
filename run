@@ -135,6 +135,7 @@ source_engine $ENGINE
 	env_prepare
 	echo "cd $PWD"
 	echo "$RUN_COMMAND $MPI_OPTS $SINGULARITY_COMMAND $SOLVER $CASE $XPATH"
+    telegram_notify "Finished job $RUN_COMMAND $SOLVER $CASE"
 ) >tmp.job.scr
 
 q_run "$@" "tmp.job.scr"
